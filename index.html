@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DQA Equipment Borrow Management</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Thêm SDK Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>DQA Equipment Borrow Management</h1>
+        <form id="borrow-form">
+            <label for="name">Name:</label>
+            <input type="text" id="name" required>
+            <label for="equipment">Equipment:</label>
+            <select id="equipment" required>
+                <option value="incline">(1) Incline</option>
+                <option value="speed">(2) Speed</option>
+                <option value="iphone15">(3) iPhone 15 128GB, blue</option>
+                <option value="ipad-gen-10">(4) iPad Gen 10 10.9 inch 2022 Wifi 64GB, blue A2696</option>
+                <option value="galaxy-s23">(5) Samsung Galaxy S23 5G 128GB phone, green SM-S911B/DS</option>
+                <option value="galaxy-tab-s9">(6) Samsung Galaxy Tab S9 FE 5G 6GB 128GB, green</option>
+                <option value="oppo-enco-air3">(7) Bluetooth True Wireless OPPO ENCO Air 3 ETE31</option>
+                <option value="sony-srs-xb13">(8) Bluetooth Sony SRS-XB13</option>
+                <option value="sony-mdr-ex155ap">(9) Sony MDR-EX155AP Headphones</option>
+                <option value="apple-watch-series-9">(10) Apple Watch Series 9 - GPS, 45mm - Aluminum Case with Rubber Band</option>
+                <option value="galaxy-watch6">(11) Samsung Galaxy Watch6 40mm Bluetooth R930</option>
+                <option value="clamp-meter-319">(12) Clamp Meter 319</option>
+                <option value="digital-multimeter">(13) Digital Multimeter CAT III 600V</option>
+                <option value="rechargeable-battery">(14) Rechargeable battery</option>
+				<!-- <option value="usb">(15) USB</option> -->
+            </select>
+            <div id="quantity-container" style="display: none;">
+                <label for="quantity">Quantity:</label>
+                <input type="number" id="quantity" min="1">
+            </div>
+            <button type="submit">Borrow</button>
+        </form>
+        <h2>Current Borrows</h2>
+        <ul id="borrow-list"></ul>
+    </div>
+    <script>
+        // Thêm cấu hình Firebase của bạn
+        var firebaseConfig = {
+            apiKey: "AIzaSyCbTcF_73q3SclbbjYvfTut9g490HprlSE",
+            authDomain: "dqa-equipment-control.firebaseapp.com",
+            databaseURL: "https://dqa-equipment-control-default-rtdb.asia-southeast1.firebasedatabase.app/",
+            projectId: "dqa-equipment-control",
+            storageBucket: "dqa-equipment-control.appspot.com",
+            messagingSenderId: "338763078745",
+            appId: "1:338763078745:web:19f6bbfd3415bbb2652548"
+        };
+        // Khởi tạo Firebase
+        firebase.initializeApp(firebaseConfig);
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const db = firebase.database();
+            const form = document.getElementById('borrow-form');
+            const borrowList = document.getElementById('borrow-list');
+            const equipmentSelect = document.getElementById('equipment');
+            const quantityContainer = document.getElementById('quantity-container');
+            const quantityInput = document.getElementById('quantity');
+
+            equipmentSelect.addEventListener('change', () => {
+                if (equipmentSelect.value === 'rechargeable-battery') {
+                    quantityContainer.style.display = 'block';
+                    quantityInput.required = true;
+                } else {
+                    quantityContainer.style.display = 'none';
+                    quantityInput.required = false;
+                }
+            });
+
+            form.addEventListener('submit', (event) => {
+                event.preventDefault();
+                const name = document.getElementById('name').value;
+                const equipment = document.getElementById('equipment').value;
+                const borrowTime = new Date().toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' });
+                let quantity = null;
+
+                if (equipment === 'rechargeable-battery') {
+                    quantity = document.getElementById('quantity').value;
+                }
+
+                addBorrow(name, equipment, borrowTime, quantity);
+                form.reset();
+                quantityContainer.style.display = 'none';
+            });
+
+            function addBorrow(name, equipment, borrowTime, quantity) {
+                const newBorrowRef = db.ref('borrows').push();
+                const borrowData = { name, equipment, borrowTime };
+                if (quantity) {
+                    borrowData.quantity = quantity;
+                }
+                newBorrowRef.set(borrowData)
+                .then(() => {
+                    displayBorrow(newBorrowRef.key, name, equipment, borrowTime, quantity);
+                })
+                .catch((error) => {
+                    console.error("Error adding borrow: ", error);
+                });
+            }
+
+            function displayBorrow(key, name, equipment, borrowTime, quantity) {
+                const borrowItem = document.createElement('li');
+                borrowItem.innerHTML = `${name} - ${equipment} ${quantity ? '(Quantity: ' + quantity + ')' : ''} (Borrowed at: ${borrowTime}) <button class="return" data-key="${key}">Return</button>`;
+
+                borrowItem.querySelector('.return').addEventListener('click', () => {
+                    const returnTime = new Date().toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' });
+                    db.ref('borrows/' + key).update({ returnTime: returnTime })
+                    .then(() => {
+                        borrowItem.innerHTML = `${name} - ${equipment} ${quantity ? '(Quantity: ' + quantity + ')' : ''} (Borrowed at: ${borrowTime}, Returned at: ${returnTime})`;
+                        borrowItem.querySelector('.return').remove();
+                        removeBorrowFromList(key);
+                    })
+                    .catch((error) => {
+                        console.error("Error returning borrow: ", error);
+                    });
+                });
+
+                borrowList.appendChild(borrowItem);
+            }
+
+            function removeBorrowFromList(key) {
+                const borrowItem = document.querySelector(`button[data-key='${key}']`).parentElement;
+                if (borrowItem) {
+                    borrowList.removeChild(borrowItem);
+                }
+            }
+
+            function loadData() {
+                db.ref('borrows').on('value', (snapshot) => {
+                    borrowList.innerHTML = '';
+                    snapshot.forEach((childSnapshot) => {
+                        const key = childSnapshot.key;
+                        const borrow = childSnapshot.val();
+                        if (!borrow.returnTime) {
+                            displayBorrow(key, borrow.name, borrow.equipment, borrow.borrowTime, borrow.quantity);
+                        }
+                    });
+                });
+            }
+
+            loadData();
+        });
+    </script>
+</body>
+</html>
