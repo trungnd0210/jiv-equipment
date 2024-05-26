@@ -31,7 +31,6 @@
                 <option value="clamp-meter-319">(12) Clamp Meter 319</option>
                 <option value="digital-multimeter">(13) Digital Multimeter CAT III 600V</option>
                 <option value="rechargeable-battery">(14) Rechargeable battery</option>
-				<!-- <option value="usb">(15) USB</option> -->
             </select>
             <div id="quantity-container" style="display: none;">
                 <label for="quantity">Quantity:</label>
@@ -39,8 +38,16 @@
             </div>
             <button type="submit">Borrow</button>
         </form>
-        <h2>Current Borrows</h2>
-        <ul id="borrow-list"></ul>
+        <div class="borrow-sections">
+            <div class="current-borrows">
+                <h2>Current Borrows</h2>
+                <ul id="borrow-list"></ul>
+            </div>
+            <div class="borrow-history">
+                <h2>Borrow History (Last 15 Transactions)</h2>
+                <ul id="borrow-history"></ul>
+            </div>
+        </div>
     </div>
     <script>
         // Thêm cấu hình Firebase của bạn
@@ -60,6 +67,7 @@
             const db = firebase.database();
             const form = document.getElementById('borrow-form');
             const borrowList = document.getElementById('borrow-list');
+            const borrowHistory = document.getElementById('borrow-history');
             const equipmentSelect = document.getElementById('equipment');
             const quantityContainer = document.getElementById('quantity-container');
             const quantityInput = document.getElementById('quantity');
@@ -114,7 +122,11 @@
                     db.ref('borrows/' + key).update({ returnTime: returnTime })
                     .then(() => {
                         borrowItem.innerHTML = `${name} - ${equipment} ${quantity ? '(Quantity: ' + quantity + ')' : ''} (Borrowed at: ${borrowTime}, Returned at: ${returnTime})`;
-                        borrowItem.querySelector('.return').remove();
+                        const returnButton = borrowItem.querySelector('.return');
+                        if (returnButton) {
+                            returnButton.remove();
+                        }
+                        addToBorrowHistory(name, equipment, borrowTime, returnTime, quantity);
                         removeBorrowFromList(key);
                     })
                     .catch((error) => {
@@ -126,10 +138,24 @@
             }
 
             function removeBorrowFromList(key) {
-                const borrowItem = document.querySelector(`button[data-key='${key}']`).parentElement;
-                if (borrowItem) {
-                    borrowList.removeChild(borrowItem);
+                const returnButton = document.querySelector(`button[data-key='${key}']`);
+                if (returnButton) {
+                    const borrowItem = returnButton.parentElement;
+                    if (borrowItem) {
+                        borrowList.removeChild(borrowItem);
+                    }
                 }
+            }
+
+            function addToBorrowHistory(name, equipment, borrowTime, returnTime, quantity) {
+                const historyItem = document.createElement('li');
+                historyItem.innerHTML = `${name} - ${equipment} ${quantity ? '(Quantity: ' + quantity + ')' : ''} (Borrowed at: ${borrowTime}, Returned at: ${returnTime})`;
+
+                if (borrowHistory.children.length >= 15) {
+                    borrowHistory.removeChild(borrowHistory.lastChild);
+                }
+
+                borrowHistory.insertBefore(historyItem, borrowHistory.firstChild);
             }
 
             function loadData() {
@@ -140,6 +166,18 @@
                         const borrow = childSnapshot.val();
                         if (!borrow.returnTime) {
                             displayBorrow(key, borrow.name, borrow.equipment, borrow.borrowTime, borrow.quantity);
+                        }
+                    });
+                });
+
+                db.ref('borrows').orderByChild('key').limitToLast(15).on('value', (snapshot) => {
+                    borrowHistory.innerHTML = '';
+                    snapshot.forEach((childSnapshot) => {
+                        const borrow = childSnapshot.val();
+                        if (borrow.returnTime) {
+                            const historyItem = document.createElement('li');
+                            historyItem.innerHTML = `${borrow.name} - ${borrow.equipment} ${borrow.quantity ? '(Quantity: ' + borrow.quantity + ')' : ''} (Borrowed at: ${borrow.borrowTime}, Returned at: ${borrow.returnTime})`;
+                            borrowHistory.insertBefore(historyItem, borrowHistory.firstChild);
                         }
                     });
                 });
