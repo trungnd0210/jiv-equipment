@@ -125,3 +125,38 @@ button.return {
 button.return:hover {
     background-color: #c0392b;
 }
+
+.tab {
+    display: none;
+}
+.tab.active {
+    display: block;
+}
+.tab-buttons {
+    display: flex;
+    justify-content: space-around;
+}
+.tab-buttons button {
+    padding: 10px 20px;
+    cursor: pointer;
+}
+
+.btn-submit {
+    margin-top: 20px;
+    margin-bottom: 20px;
+
+}
+
+.head-lable {
+    margin-top: 8px;
+    margin-bottom: 8px;
+}
+
+.one-line {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.borrow-item {
+    margin-bottom: 5px;
+}
