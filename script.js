@@ -31,7 +31,7 @@
 
             // Function to clear previous Firebase listeners
             function clearFirebaseListeners() {
-                db.ref('debug').off();
+                db.ref('borrows').off();
                 db.ref('equipment').off();
             }
 
@@ -108,7 +108,7 @@
                             db.ref('equipment/' + equipmentKey).update({ quantity: equipmentData.quantity - 1 });
 
                             // Add borrow record
-                            const newBorrowRef = db.ref('debug').push();
+                            const newBorrowRef = db.ref('borrows').push();
                             const borrowData = { name, equipment, borrowTime };
                             if (quantity) {
                                 borrowData.quantity = quantity;
@@ -146,7 +146,7 @@
 
                 borrowItem.querySelector('.return').addEventListener('click', () => {
                     const returnTime = new Date().toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' });
-                    db.ref('debug/' + key).update({ returnTime: returnTime }).then(() => {
+                    db.ref('borrows/' + key).update({ returnTime: returnTime }).then(() => {
                         loadData(); // Refresh the data after updating
                     }).catch((error) => {
                         console.error("Error returning borrow: ", error);
@@ -200,7 +200,7 @@
             function loadData() {
                 clearFirebaseListeners();
 
-                db.ref('debug').on('value', (snapshot) => {
+                db.ref('borrows').on('value', (snapshot) => {
                     borrowList.innerHTML = '';
                     snapshot.forEach((childSnapshot) => {
                         const key = childSnapshot.key;
@@ -211,7 +211,7 @@
                     });
                 });
 
-                db.ref('debug').orderByChild('key').limitToLast(15).on('value', (snapshot) => {
+                db.ref('borrows').orderByChild('key').limitToLast(15).on('value', (snapshot) => {
                     borrowHistory.innerHTML = '';
                     snapshot.forEach((childSnapshot) => {
                         const borrow = childSnapshot.val();
