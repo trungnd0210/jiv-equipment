@@ -12,15 +12,59 @@
 </head>
 <body>
     <div class="container">
-        <h1>DQA Equipment Borrow Management</h1>
-        <div class="tab-buttons">
+        <!-- <h1>DQA Equipment Borrow Management</h1> -->
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <a class="navbar-brand" href="#">JIV DQA</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo02" aria-controls="navbarTogglerDemo02" aria-expanded="false" aria-label="Toggle navigation">
+              <span class="navbar-toggler-icon"></span>
+            </button>
+          
+            <div class="collapse navbar-collapse" id="navbarTogglerDemo02">
+              <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+                <li class="nav-item">
+                  <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Dashboard</a>
+                </li>
+                <li class="nav-item">
+                  <a id="borrow-tab-btn" class="nav-link" href="#">Borrow <span class="sr-only">(current)</span></a>
+                </li>
+                <!-- <li class="nav-item">
+                  <a id="equipment-tab-btn" class="nav-link" href="#">Equipment</a>
+                </li> -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                      Equipment
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                      <a id="equipment-tab-btn" class="dropdown-item" href="#">Equipment List</a>
+                      <a class="dropdown-item" href="#">Inventory</a>
+                    </div>
+                </li>
+                <li class="nav-item">
+                  <a id="pa-tab-btn" class="nav-link" href="#" tabindex="-1" aria-disabled="true">PA</a>
+                </li>
+                <li class="nav-item">
+                  <a id="admin-tab-btn" class="nav-link" href="#" tabindex="-1" aria-disabled="true">Admin</a>
+                </li>
+                <!-- <li class="nav-item">
+                  <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
+                </li> -->
+              </ul>
+              <form class="form-inline my-2 my-lg-0">
+                <input class="form-control mr-sm-2" type="search" placeholder="Search">
+                <button class="btn btn-outline-dark my-2 my-sm-0" type="submit">Search</button>
+              </form>
+            </div>
+          </nav>
+
+        <!-- <div class="tab-buttons">
             <button id="borrow-tab-btn" class="btn btn-outline-primary">Borrow</button>
             <button id="equipment-tab-btn" class="btn btn-outline-primary">Equipment</button>
-        </div>
+        </div> -->
+
         <div id="borrow-tab" class="tab active">
             <form id="borrow-form">
                 <label for="name">Name:</label>
-                <input type="text" id="name" required>
+                <input type="text" id="name" class="form-control" placeholder="Your name" required>
 
                 <!-- <div class="input-group mb-3">
                     <div class="input-group-prepend">
@@ -35,7 +79,7 @@
                 </div> -->
 
                 <label for="equipment" class="head-lable">Equipment:</label>
-                <select id="equipment" required></select>
+                <select id="equipment" class="form-control" required></select>
                 <div id="quantity-container" style="display: none;">
                     <label for="quantity">Quantity:</label>
                     <input type="number" id="quantity" min="1">
@@ -44,11 +88,11 @@
             </form>
             <div class="borrow-sections">
                 <div class="current-borrows">
-                    <h3>Current Borrows</h3>
+                    <h5>Current Borrows</h5>
                     <ul id="borrow-list"></ul>
                 </div>
                 <div class="borrow-history">
-                    <h3>Borrow History (Last 15 Transactions)</h3>
+                    <h5>Borrow History (Last 15 Transactions)</h5>
                     <ul id="borrow-history"></ul>
                 </div>
             </div>
@@ -60,19 +104,155 @@
                 <button class="btn btn-primary" type="submit">Enter</button>
             </form>
             <form id="equipment-form" style="display: none;" class="one-line">
-                <label for="new-equipment-name">Equipment Name:</label>
-                <input type="text" id="new-equipment-name" required>
-                <label for="new-equipment-quantity">Quantity:</label>
-                <input type="number" id="new-equipment-quantity" min="1" required>
-                <button class="btn btn-primary" type="submit">Add Equipment</button>
-            </form>
-            <h3 class="head-lable">Available Equipment</h3>
-            <ul id="equipment-list"></ul>
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label for="new-equipment-name">Equipment Name:</label>
+                        <input type="text" id="new-equipment-name" class="form-control" required>
+                    </div>
+                    <div class="form-group col-md-2">
+                        <label for="new-equipment-quantity">Quantity:</label>
+                        <input type="number" id="new-equipment-quantity" class="form-control" min="1" required>
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label for="department">Department</label>
+                        <input type="text" class="form-control" id="department" required>
+                    </div>
+                  </div>
+                  <div class="form-row">
+                    <div class="form-group col">
+                        <label for="serial-number">Serial Number</label>
+                        <input type="text" class="form-control" id="serial-number" required>
+                    </div>
+                    <div class="form-group col">
+                        <label for="verification-date">Verification Date</label>
+                        <input type="date" class="form-control" id="verification-date" required>
+                    </div>
+                    <div class="form-group col">
+                        <label for="cycle">Cycle (months)</label>
+                        <input type="number" class="form-control" id="cycle" required>
+                    </div>
+                    <div class="form-group col">
+                        <label for="pic">PIC</label>
+                        <input type="text" class="form-control" id="pic" required>
+                    </div>
+                  </div>
+                <button class="btn btn-primary btn-submit" type="submit">Add Equipment</button>
+                </form>
+                <!-- Equipment List -->
+                <h5>Equipment List</h5>
+                <table id="pw-disable" class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Q'ty</th>
+                            <th>Department</th>
+                            <th>PIC</th>
+                            <th>Serial Number</th>
+                            <th>Verification Date</th>
+                            <th>Cycle</th>
+                            <th>Valid Date</th>
+                        </tr>
+                    </thead>
+                    <tbody id="equipment-list pw-disable">
+                        <!-- Equipment items will be listed here -->
+                    </tbody>
+                </table>
+                <table id="pw-enable" class="table table-bordered" style="display: none;">
+                  <thead>
+                      <tr>
+                          <th>Name</th>
+                          <th>Q'ty</th>
+                          <th>Department</th>
+                          <th>PIC</th>
+                          <th>Serial Number</th>
+                          <th>Verification Date</th>
+                          <th>Cycle</th>
+                          <th>Valid Date</th>
+                          <th>Action</th>
+                      </tr>
+                  </thead>
+                  <tbody id="equipment-list">
+                      <!-- Equipment items will be listed here -->
+                  </tbody>
+              </table>
         </div>
+        <!-- PA/Admin tabs -->
+        <div id="pa-tab" class="tab">
+          <form id="leave-form">
+            <h5>Attendance for leave</h5>
+            <div class="form-row">
+              <div class="form-group col">
+                <label for="leave-name">Name:</label>
+                <input type="text" id="leave-name" class="form-control" required>
+              </div>
+              <div class="form-group col">
+                <label for="leave-date">Date:</label>
+                <input type="date" id="leave-date" class="form-control" required>
+              </div>
+              <div class="form-group col">
+                <label for="leave-period">Period:</label>
+                <select id="leave-period" class="form-control" required>
+                    <option value="all">All day</option>
+                    <option value="morning">Morning</option>
+                    <option value="afternoon">Afternoon</option>
+                </select>
+              </div>
+            </div>
+            <button class="btn btn-outline-primary btn-submit" type="submit">Submit Leave</button>
+          </form>
+          <form id="overtime-form">
+            <h5>Overtime</h5>
+            <div class="form-row">
+              <div class="form-group col">
+                <label for="overtime-name">Name:</label>
+                <input type="text" id="overtime-name" class="form-control" required>
+              </div>
+              <div class="form-group col">
+                <label for="overtime-date">Date:</label>
+                <input type="date" id="overtime-date" class="form-control" required>
+              </div>
+              <div class="form-group col">
+                <label for="overtime-hour">Overtime hour:</label>
+                <input type="number" class="form-control" id="ot-hour" required>
+              </div>
+            </div>
+            <div class="form-check">
+              <input type="checkbox" class="form-check-input" id="meal-check" style="top: 4px;">
+              <label class="form-check-label" for="meal-check">Register for meals (OT > 1 hour)</label>
+            </div>
+            <button class="btn btn-outline-primary btn-submit" type="submit">Submit Overtime</button>
+          </form>
+        </div>
+
+        <div id="admin-tab" class="tab">
+          <form id="password-form" class="one-line">
+              <label for="password">Password:</label>
+              <input type="password" id="password" required>
+              <button class="btn btn-primary" type="submit">Enter</button>
+          </form>
+          <!-- <form id="admin-password-form" class="one-line">
+              <label for="admin-password">Password:</label>
+              <input type="password" id="admin-password" class="form-control" required>
+              <button class="btn btn-outline-primary" type="submit">Enter</button>
+          </form> -->
+          <div id="admin-panel" style="display: none;">
+              <h5>Return Requests</h5>
+              <ul id="return-requests"></ul>
+          </div>
+        </div>
+        <!-- End PA/Admin tabs -->
     </div>
     <script src="./script.js"></script>
     <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
 </body>
+<!-- <footer class="d-flex flex-wrap align-items-center border-top">
+  <div class="col-md-4 d-flex align-items-center">
+    <a href="/" class="mb-3 me-2 mb-md-0 text-body-secondary text-decoration-none lh-1">
+      <svg class="bi" width="30" height="24"><use xlink:href="#bootstrap"></use></svg>
+    </a>
+    <span class="mb-3 mb-md-0 text-body-secondary">© 2024 Designed by Max DQA</span>
+  </div>
+</footer> -->
 </html>
