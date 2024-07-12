@@ -27,6 +27,7 @@ form {
 
 label {
     margin-bottom: 5px;
+    margin-top: 5px;
     color: #555;
 }
 
@@ -62,7 +63,7 @@ ul {
     padding: 0;
 }
 
-li {
+/* li {
     background-color: #f9f9f9;
     margin-bottom: 5px;
     padding: 10px;
@@ -77,7 +78,7 @@ li button {
     padding: 5px 10px;
     cursor: pointer;
     float: right;
-}
+} */
 
 li button:hover {
     background-color: #c82333;
@@ -104,7 +105,7 @@ ul {
     padding: 0;
 }
 
-li {
+.borrow-his-li {
     margin: 10px 0;
     padding: 10px;
     border: 1px solid #ccc;
@@ -112,7 +113,11 @@ li {
     background-color: #f9f9f9;
 }
 
-button.return {
+.navbar-brand {
+    font-weight: bold;
+}
+
+/* button.return {
     margin-left: 10px;
     padding: 5px 10px;
     background-color: #e74c3c;
@@ -124,7 +129,7 @@ button.return {
 
 button.return:hover {
     background-color: #c0392b;
-}
+} */
 
 .tab {
     display: none;
@@ -159,4 +164,29 @@ button.return:hover {
 
 .borrow-item {
     margin-bottom: 5px;
+}
+
+/* Add these styles for PA/Admin tabs */
+.tab {
+    display: none;
+}
+.tab.active {
+    display: block;
+}
+.one-line {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+#admin-panel {
+    margin-top: 20px;
+}
+
+#leave-form {
+    margin-top: 8px;
+}
+
+footer {
+    display: flex; /* Kích hoạt flexbox */
+    justify-content: center; /* Căn giữa theo chiều ngang */
+    align-items: center; /* Căn giữa theo chiều dọc */
 }
