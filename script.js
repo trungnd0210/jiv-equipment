@@ -15,19 +15,33 @@
             const db = firebase.database();
             const borrowTab = document.getElementById('borrow-tab');
             const equipmentTab = document.getElementById('equipment-tab');
+            const paTab = document.getElementById('pa-tab'); //add new 20240610
+            const adminTab = document.getElementById('admin-tab'); //add new 20240610
             const borrowTabBtn = document.getElementById('borrow-tab-btn');
             const equipmentTabBtn = document.getElementById('equipment-tab-btn');
+            const paTabBtn = document.getElementById('pa-tab-btn'); //add new 20240610
+            const adminTabBtn = document.getElementById('admin-tab-btn'); //add new 20240610
             const borrowForm = document.getElementById('borrow-form');
             const passwordForm = document.getElementById('password-form');
+            const adminPasswordForm = document.getElementById('admin-password-form'); //add new 20240610
             const equipmentForm = document.getElementById('equipment-form');
             const borrowList = document.getElementById('borrow-list');
+            const borrowList_disable = document.getElementById('borrow-list pw-disable');
             const borrowHistory = document.getElementById('borrow-history');
             const equipmentList = document.getElementById('equipment-list');
+            const equipmentList_disable = document.getElementById('equipment-list pw-disable');
             const equipmentSelect = document.getElementById('equipment');
             const quantityContainer = document.getElementById('quantity-container');
             const quantityInput = document.getElementById('quantity');
+            const returnRequests = document.getElementById('return-requests'); //add new 20240610
+            const leaveForm = document.getElementById('leave-form'); //add new 20240610
+            const overtimeForm = document.getElementById('overtime-form'); //add new 20240610
+            // const pw_disable = document.getElementById('pw-disable'); //add new 20240616
+            // const pw_enable = document.getElementById('pw-enable'); //add new 20240616
+            const pwEnableElements = document.querySelectorAll('#pw-enable'); //add new 20240712
+            const pwDisableElements = document.querySelectorAll('#pw-disable'); //add new 20240712
 
-            const correctPassword = "jivdqa2024";
+            const correctPassword = "1";
 
             // Function to clear previous Firebase listeners
             function clearFirebaseListeners() {
@@ -35,22 +49,28 @@
                 db.ref('equipment').off();
             }
 
-            // Switch between tabs
+            // Tab switching 20240610
             borrowTabBtn.addEventListener('click', () => {
-                borrowTab.classList.add('active');
-                equipmentTab.classList.remove('active');
+                switchTab(borrowTab);
             });
-
             equipmentTabBtn.addEventListener('click', () => {
-                borrowTab.classList.remove('active');
-                if (equipmentForm.style.display === 'block') {
-                    equipmentTab.classList.add('active');
-                } else {
-                    passwordForm.style.display = 'block';
-                    equipmentForm.style.display = 'none';
-                    equipmentTab.classList.add('active');
-                }
+                switchTab(equipmentTab);
             });
+            paTabBtn.addEventListener('click', () => {
+                switchTab(paTab);
+            });
+            adminTabBtn.addEventListener('click', () => {
+                switchTab(adminTab);
+            });
+            
+            function switchTab(tab) {
+                borrowTab.classList.remove('active');
+                equipmentTab.classList.remove('active');
+                paTab.classList.remove('active');
+                adminTab.classList.remove('active');
+                tab.classList.add('active');
+            }
+            // End Tab switching 
 
             passwordForm.addEventListener('submit', (event) => {
                 event.preventDefault();
@@ -58,6 +78,14 @@
                 if (password === correctPassword) {
                     passwordForm.style.display = 'none';
                     equipmentForm.style.display = 'block';
+                    // pw_disable.style.display = 'none';
+                    // pw_enable.style.display = 'block';
+                    pwEnableElements.forEach(element => {
+                        element.style.display = 'block';
+                      });
+                    pwDisableElements.forEach(element => {
+                        element.style.display = 'none';
+                    });
                 } else {
                     alert('Incorrect password');
                 }
@@ -93,7 +121,13 @@
                 event.preventDefault();
                 const name = document.getElementById('new-equipment-name').value;
                 const quantity = document.getElementById('new-equipment-quantity').value;
-                addEquipment(name, quantity);
+                const department = document.getElementById('department').value;
+                const pic = document.getElementById('pic').value;
+                const serialNumber = document.getElementById('serial-number').value;
+                const verificationDate = document.getElementById('verification-date').value;
+                const cycle = document.getElementById('cycle').value;
+        
+                addEquipment(name, quantity, department, pic, serialNumber, verificationDate, cycle);
                 equipmentForm.reset();
             });
 
@@ -125,23 +159,34 @@
                 });
             }
 
-            function addEquipment(name, quantity) {
+            function addEquipment(name, quantity, department, pic, serialNumber, verificationDate, cycle) {
+                const validDate = new Date(verificationDate);
+                validDate.setMonth(validDate.getMonth() + parseInt(cycle));
+        
                 const newEquipmentRef = db.ref('equipment').push();
-                newEquipmentRef.set({ name, quantity }).then(() => {
-                    loadData(); // Refresh the data after updating
+                newEquipmentRef.set({
+                    name,
+                    quantity,
+                    department,
+                    pic,
+                    serialNumber,
+                    verificationDate,
+                    cycle,
+                    validDate: validDate.toISOString().split('T')[0]
+                }).then(() => {
+                    loadData();
                 }).catch((error) => {
                     console.error("Error adding equipment: ", error);
                 });
             }
-
+            
             function displayBorrow(key, name, equipment, borrowTime, quantity) {
                 const borrowItem = document.createElement('div');
-                // borrowItem.innerHTML = `${name} - ${equipment} ${quantity ? '(Quantity: ' + quantity + ')' : ''} (Borrowed at: ${borrowTime}) <button class="return" data-key="${key}">Return</button>`;
                 borrowItem.classList.add('card', 'borrow-item'); 
                 borrowItem.innerHTML = `
                 <div class="card-body">
                   <p class="card-text">${name} - ${equipment} ${quantity ? '(Quantity: ' + quantity + ')' : ''} (Borrowed at: ${borrowTime})</p>
-                  <button class="return" data-key="${key}">Return</button>
+                  <button class="return btn btn-outline-danger" data-key="${key}">Return</button>
                 </div>`;
 
                 borrowItem.querySelector('.return').addEventListener('click', () => {
@@ -165,11 +210,57 @@
                 borrowList.appendChild(borrowItem);
             }
 
-            function displayEquipment(key, name, quantity) {
-                const equipmentItem = document.createElement('li');
-                equipmentItem.innerHTML = `${name} - Quantity: ${quantity}`;
+            function displayBorrow_disable(key, name, equipment, borrowTime, quantity) {
+                const borrowItem_disable = document.createElement('div');
+                borrowItem_disable.classList.add('card', 'borrow-item'); 
+                borrowItem_disable.innerHTML = `
+                <div class="card-body">
+                  <p class="card-text">${name} - ${equipment} ${quantity ? '(Quantity: ' + quantity + ')' : ''} (Borrowed at: ${borrowTime})</p>
+                </div>`;
+
+                borrowList_disable.appendChild(borrowItem_disable);
+            }
+
+            function displayEquipment(key, name, quantity, department, pic, serialNumber, verificationDate, cycle, validDate) {
+                const equipmentItem = document.createElement('tr');
+                equipmentItem.innerHTML = `
+                    <td>${name}</td>
+                    <td>${quantity}</td>
+                    <td>${department}</td>
+                    <td>${pic}</td>
+                    <td>${serialNumber}</td>
+                    <td>${verificationDate}</td>
+                    <td>${cycle}</td>
+                    <td>${validDate}</td>
+                    <td><button type="button" class="btn btn-outline-dark editBtn" data-id=${key}>Edit</button>
+                    <button type="button" class="btn btn-outline-danger deleteBtn" data-id=${key} style="margin-top: 4px;">Delete</button></td>
+                `;
                 equipmentList.appendChild(equipmentItem);
             }
+
+            function displayEquipment_disable(key, name, quantity, department, pic, serialNumber, verificationDate, cycle, validDate) {
+                const equipmentItem = document.createElement('tr');
+                equipmentItem.innerHTML = `
+                    <td>${name}</td>
+                    <td>${quantity}</td>
+                    <td>${department}</td>
+                    <td>${pic}</td>
+                    <td>${serialNumber}</td>
+                    <td>${verificationDate}</td>
+                    <td>${cycle}</td>
+                    <td>${validDate}</td>
+                `;
+                equipmentList_disable.appendChild(equipmentItem);
+            }
+
+
+            // Add event listeners for edit and delete buttons 20240626
+            document.querySelectorAll('.editBtn').forEach(button => {
+                button.addEventListener('click', handleEdit);
+            });
+            document.querySelectorAll('.deleteBtn').forEach(button => {
+                button.addEventListener('click', handleDelete);
+            });
 
             function updateEquipmentSelect() {
                 db.ref('equipment').once('value', (snapshot) => {
@@ -188,6 +279,7 @@
 
             function addToBorrowHistory(name, equipment, borrowTime, returnTime, quantity) {
                 const historyItem = document.createElement('li');
+                historyItem.classList.add('borrow-his-li'); 
                 historyItem.innerHTML = `${name} - ${equipment} ${quantity ? '(Quantity: ' + quantity + ')' : ''} (Borrowed at: ${borrowTime}, Returned at: ${returnTime})`;
 
                 if (borrowHistory.children.length >= 15) {
@@ -202,11 +294,13 @@
 
                 db.ref('borrows').on('value', (snapshot) => {
                     borrowList.innerHTML = '';
+                    borrowList_disable.innerHTML = '';
                     snapshot.forEach((childSnapshot) => {
                         const key = childSnapshot.key;
                         const borrow = childSnapshot.val();
                         if (!borrow.returnTime) {
                             displayBorrow(key, borrow.name, borrow.equipment, borrow.borrowTime, borrow.quantity);
+                            displayBorrow_disable(key, borrow.name, borrow.equipment, borrow.borrowTime, borrow.quantity);
                         }
                     });
                 });
@@ -217,6 +311,7 @@
                         const borrow = childSnapshot.val();
                         if (borrow.returnTime) {
                             const historyItem = document.createElement('li');
+                            historyItem.classList.add('borrow-his-li'); 
                             historyItem.innerHTML = `${borrow.name} - ${borrow.equipment} ${borrow.quantity ? '(Quantity: ' + borrow.quantity + ')' : ''} (Borrowed at: ${borrow.borrowTime}, Returned at: ${borrow.returnTime})`;
                             borrowHistory.insertBefore(historyItem, borrowHistory.firstChild);
                         }
@@ -226,12 +321,115 @@
                 db.ref('equipment').on('value', (snapshot) => {
                     equipmentList.innerHTML = '';
                     snapshot.forEach((childSnapshot) => {
+                        const key = childSnapshot.key;
                         const equipment = childSnapshot.val();
-                        displayEquipment(childSnapshot.key, equipment.name, equipment.quantity);
+                        displayEquipment(key, equipment.name, equipment.quantity, equipment.department, equipment.pic, equipment.serialNumber, equipment.verificationDate, equipment.cycle, equipment.validDate);
+                        displayEquipment_disable(key, equipment.name, equipment.quantity, equipment.department, equipment.pic, equipment.serialNumber, equipment.verificationDate, equipment.cycle, equipment.validDate);
                     });
                     updateEquipmentSelect();
                 });
             }
 
+            // Handle leave form submission 20240610
+            leaveForm.addEventListener('submit', (event) => {
+                event.preventDefault();
+                const name = document.getElementById('leave-name').value;
+                const period = document.getElementById('leave-period').value;
+                // const leaveTime = new Date().toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' });
+                const leaveTime = document.getElementById('leave-date').value;
+                db.ref('leaves').push({
+                    name: name,
+                    period: period,
+                    leaveTime: leaveTime
+                });
+                alert('Leave submitted successfully');
+                leaveForm.reset();
+            });
+
+            // Handle overtime form submission
+            overtimeForm.addEventListener('submit', (event) => {
+                event.preventDefault();
+                const name = document.getElementById('overtime-name').value;
+                const date = document.getElementById('overtime-date').value || new Date().toISOString().split('T')[0];
+                const ot_hour = document.getElementById('ot-hour').value;
+                const meal_check = document.getElementById('meal-check').checked;
+                db.ref('overtime').push({
+                    name: name,
+                    date: date,
+                    ot_hour: ot_hour,
+                    meal_check: meal_check
+                });
+                alert('Overtime submitted successfully');
+                overtimeForm.reset();
+            });
+
             loadData();
         });
+
+        // Listen for return requests in the admin panel
+        db.ref('returns').on('child_added', (snapshot) => {
+            const data = snapshot.val();
+            const li = document.createElement('li');
+            li.textContent = `Name: ${data.name}, Equipment: ${data.equipment}, Borrowed at: ${data.borrowTime}`;
+            const approveButton = document.createElement('button');
+            approveButton.textContent = 'Approve';
+            approveButton.addEventListener('click', () => {
+                db.ref('borrowHistory/' + data.id).set(data);
+                db.ref('returns/' + data.id).remove();
+                li.remove();
+            });
+            const rejectButton = document.createElement('button');
+            rejectButton.textContent = 'Reject';
+            rejectButton.addEventListener('click', () => {
+                db.ref('returns/' + data.id).remove();
+                db.ref('currentBorrows/' + data.id).set(data);
+                li.remove();
+            });
+            li.appendChild(approveButton);
+            li.appendChild(rejectButton);
+            returnRequests.appendChild(li);
+        });
+
+        // Password protection for admin tab 20240610
+        adminPasswordForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            const password = document.getElementById('admin-password').value;
+            if (password === correctPassword) {
+                adminPasswordForm.style.display = 'none';
+                document.getElementById('admin-panel').style.display = 'block';
+            } else {
+                alert('Incorrect password');
+            }
+        });
+    
+        // Handle return requests
+        borrowList.addEventListener('click', (event) => {
+            if (event.target.classList.contains('return')) {
+                const itemId = event.target.dataset.id;
+                db.ref('returns/' + itemId).set({
+                    id: itemId,
+                    name: event.target.dataset.name,
+                    equipment: event.target.dataset.equipment,
+                    borrowTime: event.target.dataset.borrowTime,
+                });
+                event.target.parentElement.remove();
+            }
+        });
+
+    // Handle return requests 20240626
+    function handleDelete(event) {
+        const equipmentId = event.target.dataset.id; // Giả sử id được lưu trong thuộc tính data-id của button
+    
+        // Hiển thị pop-up xác nhận
+        if (confirm('Are you sure you want to delete this equipment?')) {
+            const db = firebase.database();
+            const equipmentRef = db.ref('equipment/' + equipmentId);
+    
+            equipmentRef.remove().then(() => {
+                alert('Equipment deleted successfully!');
+                location.reload();
+            }).catch(error => {
+                console.error('Error deleting equipment: ', error);
+            });
+        }
+    }
