@@ -14,53 +14,103 @@
     <div class="container">
         <!-- <h1>DQA Equipment Borrow Management</h1> -->
         <nav class="navbar navbar-expand-lg navbar-light bg-light">
-            <a class="navbar-brand" href="#">JIV DQA</a>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo02" aria-controls="navbarTogglerDemo02" aria-expanded="false" aria-label="Toggle navigation">
-              <span class="navbar-toggler-icon"></span>
-            </button>
-          
-            <div class="collapse navbar-collapse" id="navbarTogglerDemo02">
-              <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
-                <li class="nav-item">
-                  <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Dashboard</a>
-                </li>
-                <li class="nav-item">
-                  <a id="borrow-tab-btn" class="nav-link" href="#">Borrow <span class="sr-only">(current)</span></a>
-                </li>
-                <!-- <li class="nav-item">
-                  <a id="equipment-tab-btn" class="nav-link" href="#">Equipment</a>
-                </li> -->
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                      Equipment
-                    </a>
-                    <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                      <a id="equipment-tab-btn" class="dropdown-item" href="#">Equipment List</a>
-                      <a class="dropdown-item" href="#">Inventory</a>
-                    </div>
-                </li>
-                <li class="nav-item">
-                  <a id="pa-tab-btn" class="nav-link" href="#" tabindex="-1" aria-disabled="true">PA</a>
-                </li>
-                <li class="nav-item">
-                  <a id="admin-tab-btn" class="nav-link" href="#" tabindex="-1" aria-disabled="true">Admin</a>
-                </li>
-                <!-- <li class="nav-item">
-                  <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
-                </li> -->
-              </ul>
-              <form id="password-form" class="form-inline my-2 my-lg-0">
-                <input id="password" class="form-control mr-sm-2" type="password" placeholder="Enter password">
-                <button class="btn btn-outline-dark my-2 my-sm-0" type="submit">Enter</button>
-              </form>
-            </div>
-          </nav>
+          <a class="navbar-brand" href="#">JIV DQA</a>
+          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo02" aria-controls="navbarTogglerDemo02" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+        
+          <div class="collapse navbar-collapse" id="navbarTogglerDemo02">
+            <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+              <li class="nav-item">
+                <a id="dashboard-tab-btn" class="nav-link" href="#" tabindex="-1" aria-disabled="true">Dashboard</a>
+              </li>
+              <li class="nav-item">
+                <a id="borrow-tab-btn" class="nav-link" href="#">Borrow <span class="sr-only">(current)</span></a>
+              </li>
+              <!-- <li class="nav-item">
+                <a id="equipment-tab-btn" class="nav-link" href="#">Equipment</a>
+              </li> -->
+              <li class="nav-item dropdown">
+                  <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Equipment
+                  </a>
+                  <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                    <a id="equipment-tab-btn" class="dropdown-item" href="#">Equipment List</a>
+                    <a class="dropdown-item" href="#">Inventory</a>
+                  </div>
+              </li>
+              <li class="nav-item">
+                <a id="pa-tab-btn" class="nav-link" href="#" tabindex="-1" aria-disabled="true">PA</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Blog</a>
+              </li>
+              <li class="nav-item">
+                <a id="admin-tab-btn" class="nav-link" href="#" tabindex="-1" aria-disabled="true">Admin</a>
+              </li>
+              <!-- <li class="nav-item">
+                <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
+              </li> -->
+            </ul>
+            <form id="password-form" class="form-inline my-2 my-lg-0">
+              <input id="password" class="form-control mr-sm-2" type="password" placeholder="Enter password">
+              <button class="btn btn-outline-dark my-2 my-sm-0" type="submit">Enter</button>
+            </form>
+          </div>
+        </nav>
 
         <!-- <div class="tab-buttons">
             <button id="borrow-tab-btn" class="btn btn-outline-primary">Borrow</button>
             <button id="equipment-tab-btn" class="btn btn-outline-primary">Equipment</button>
         </div> -->
-
+        <div id="dashboard-tab" class="tab">
+          <form id="date-form">
+            <div class="form-row">
+              <div class="form-group col">
+                <label for="date-picker">Date:</label>
+                <input type="date" id="date-picker" class="form-control" name="date-picker">
+              </div>
+              <div class="form-group col">
+                <label for="db-type">Type:</label>
+                <select id="db-type" class="form-control" required>
+                    <option value="db-leave">Leave</option>
+                    <option value="db-overtime">Overtime</option>
+                </select>
+              </div>
+            </div>
+            <button class="btn btn-outline-primary btn-submit" type="submit">Show</button>
+          </form>
+          <!-- <div id="leave-list"></div>
+          <div id="ot-list"></div> -->
+          <table id="leave-list" class="table table-bordered" style="display: none;">
+            <thead>
+                <tr>
+                    <th>Member ID</th>
+                    <th>Name</th>
+                    <th>Period</th>
+                    <th>Leave Time</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Leave data will be inserted here -->
+            </tbody>
+          </table>
+        
+          <table id="ot-list" class="table table-bordered" style="display: none;">
+            <thead>
+                <tr>
+                    <th>Member ID</th>
+                    <th>Name</th>
+                    <th>Date</th>
+                    <th>OT Hours</th>
+                    <th>Meal</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- OT data will be inserted here -->
+            </tbody>
+          </table>
+        </div>
         <div id="borrow-tab" class="tab active">
             <form id="borrow-form">
                 <label for="name">Name:</label>
@@ -143,7 +193,7 @@
                 <button class="btn btn-primary btn-submit" type="submit">Add Equipment</button>
                 </form>
                 <!-- Equipment List -->
-                <h5>Equipment List</h5>
+                <h5 style="margin-top: 8px;">Equipment List</h5>
                 <table id="pw-disable" class="table table-bordered">
                     <thead>
                         <tr>
@@ -183,52 +233,117 @@
         <!-- PA/Admin tabs -->
         <div id="pa-tab" class="tab">
           <form id="leave-form">
-            <h5>Attendance for leave</h5>
+            <h5>Attendance for leave (Nghỉ phép - 离开)</h5>
             <div class="form-row">
               <div class="form-group col">
-                <label for="leave-name">Name:</label>
-                <input type="text" id="leave-name" class="form-control" required>
+                <label for="leave-id">ID (Mã nhân viên-员工代码):</label>
+                <input type="number" id="leave-id" class="form-control" required>
               </div>
               <div class="form-group col">
-                <label for="leave-date">Date:</label>
+                <label for="leave-date">Date (Ngày-天):</label>
                 <input type="date" id="leave-date" class="form-control" required>
               </div>
               <div class="form-group col">
-                <label for="leave-period">Period:</label>
+                <label for="leave-period">Period (Khoảng thời gian-时期):</label>
                 <select id="leave-period" class="form-control" required>
-                    <option value="all">All day</option>
-                    <option value="morning">Morning</option>
-                    <option value="afternoon">Afternoon</option>
+                    <option value="all">All day (cả ngày-一整天)</option>
+                    <option value="morning">Morning (buổi sáng-早晨)</option>
+                    <option value="afternoon">Afternoon (buổi chiều-下午)</option>
                 </select>
               </div>
             </div>
-            <button class="btn btn-outline-primary btn-submit" type="submit">Submit Leave</button>
+            <button class="btn btn-outline-primary btn-submit" type="submit">Submit Leave (Đăng ký-提交休假)</button>
           </form>
           <form id="overtime-form">
-            <h5>Overtime</h5>
+            <h5>Overtime (Tăng ca - 随着时间的推移)</h5>
             <div class="form-row">
               <div class="form-group col">
-                <label for="overtime-name">Name:</label>
-                <input type="text" id="overtime-name" class="form-control" required>
+                <label for="overtime-id">ID (Mã nhân viên-员工代码):</label>
+                <input type="number" id="overtime-id" class="form-control" required>
               </div>
               <div class="form-group col">
-                <label for="overtime-date">Date:</label>
+                <label for="overtime-date">Date (Ngày-天):</label>
                 <input type="date" id="overtime-date" class="form-control" required>
               </div>
               <div class="form-group col">
-                <label for="overtime-hour">Overtime hour:</label>
+                <label for="overtime-hour">Overtime hour (Số giờ-加班时间):</label>
                 <input type="number" class="form-control" id="ot-hour" required>
               </div>
             </div>
             <div class="form-check">
               <input type="checkbox" class="form-check-input" id="meal-check" style="top: 4px;">
-              <label class="form-check-label" for="meal-check">Register for meals (OT > 1 hour)</label>
+              <label class="form-check-label" for="meal-check">Register for meals (OT > 1 hour) - 登记用餐（加班时间 > 1 小时）</label>
             </div>
-            <button class="btn btn-outline-primary btn-submit" type="submit">Submit Overtime</button>
+            <button class="btn btn-outline-primary btn-submit" type="submit">Submit Overtime (Đăng ký-提交加班)</button>
           </form>
         </div>
 
         <div id="admin-tab" class="tab">
+          <form id="member-form" style="display: none;">
+            <!-- <form id="pw-enable" id="member-form" style="display: none;"> -->
+            <h5 style="margin-top: 8px;">Add new RD member</h5>
+            <div class="form-row">
+              <div class="form-group col">
+                <label for="employee-name">Name*:</label>
+                <input type="text" id="employee-name" class="form-control" required>
+              </div>
+              <div class="form-group col">
+                <label for="eng-name">English Name:</label>
+                <input type="text" id="eng-name" class="form-control">
+              </div>
+              <div class="form-group col">
+                <label for="employee-id">ID*:</label>
+                <input type="number" class="form-control" id="employee-id" required>
+              </div>
+              <div class="form-group col">
+                <label for="hire-date">Hire date*:</label>
+                <input type="date" id="hire-date" class="form-control" required>
+              </div>
+              <div class="form-group col">
+                <label for="employee-department">Department*:</label>
+                <select id="employee-department" class="form-control" required>
+                    <option value="dqa">DQA</option>
+                    <option value="ee">EE</option>
+                    <option value="me">ME</option>
+                    <option value="dcc">DCC</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group col">
+                <label for="mail">Mail*:</label>
+                <input type="email" id="mail" class="form-control" required>
+              </div>
+              <div class="form-group col">
+                <label for="employee-phone">Phone*:</label>
+                <input type="number" class="form-control" id="employee-phone" required>
+              </div>
+              <div class="form-group col">
+                <label for="grade">Grade*:</label>
+                <input type="number" class="form-control" id="grade" required>
+              </div>
+            </div>
+            <button class="btn btn-outline-primary btn-submit" type="submit">Submit</button>
+            <h5 style="margin-top: 8px;">Member List</h5>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>English Name</th>
+                        <th>Hire date</th>
+                        <th>Dept</th>
+                        <th>Mail</th>
+                        <th>Grade</th>
+                        <th>Phone</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="member-list">
+                    <!-- Equipment items will be listed here -->
+                </tbody>
+            </table>
+          </form>
           <!-- <form id="password-form" class="one-line">
               <label for="password">Password:</label>
               <input type="password" id="password" required>
