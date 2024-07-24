@@ -3,8 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DQA Equipment Borrow Management</title>
+    <title>RD webpage</title>
     <link rel="stylesheet" href="style.css">
+    <link rel='stylesheet' href='https://cdn-uicons.flaticon.com/2.4.2/uicons-regular-straight/css/uicons-regular-straight.css'>
+    <link rel='stylesheet' href='https://cdn-uicons.flaticon.com/2.4.2/uicons-regular-rounded/css/uicons-regular-rounded.css'>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
     <!-- Thêm SDK Firebase -->
     <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
@@ -14,7 +16,7 @@
     <div class="container">
         <!-- <h1>DQA Equipment Borrow Management</h1> -->
         <nav class="navbar navbar-expand-lg navbar-light bg-light">
-          <a class="navbar-brand" href="#">JIV DQA</a>
+          <a class="navbar-brand" href="#">RD JVN</a>
           <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo02" aria-controls="navbarTogglerDemo02" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
           </button>
@@ -32,10 +34,12 @@
               </li> -->
               <li class="nav-item dropdown">
                   <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    Equipment
+                    Asset
                   </a>
                   <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
                     <a id="equipment-tab-btn" class="dropdown-item" href="#">Equipment List</a>
+                    <a id="machine-tab-btn" class="dropdown-item" href="#">Machine List</a>
+                    <a id="component-tab-btn" class="dropdown-item" href="#">Component</a>
                     <a class="dropdown-item" href="#">Inventory</a>
                   </div>
               </li>
@@ -113,9 +117,19 @@
         </div>
         <div id="borrow-tab" class="tab active">
             <form id="borrow-form">
-                <label for="name">Name:</label>
-                <input type="text" id="name" class="form-control" placeholder="Your name" required>
-
+              <div class="form-row">
+                <div class="form-group col">
+                  <label for="name">Name:</label>
+                  <input type="text" id="name" class="form-control" placeholder="Your name" required>
+                </div>
+                <div class="form-group col-md-4">
+                  <label for="type">Type:</label>
+                  <select id="borrow-type" class="form-control" required>
+                    <option value="borrow-equipment">Borrow Equipment</option>
+                    <option value="borrow-mc">Borrow Machine</option>
+                  </select>
+                </div>
+              </div>
                 <!-- <div class="input-group mb-3">
                     <div class="input-group-prepend">
                       <label class="input-group-text" for="inputGroupSelect01">Options</label>
@@ -190,8 +204,8 @@
                         <input type="text" class="form-control" id="pic" required>
                     </div>
                   </div>
-                <button class="btn btn-primary btn-submit" type="submit">Add Equipment</button>
-                </form>
+                <button class="btn btn-outline-primary btn-submit" type="submit">Add Equipment</button>
+            </form>
                 <!-- Equipment List -->
                 <h5 style="margin-top: 8px;">Equipment List</h5>
                 <table id="pw-disable" class="table table-bordered">
@@ -230,6 +244,292 @@
                   </tbody>
               </table>
         </div>
+        <!-- Machine list tabs -->
+        <div id="machine-tab" class="tab">
+          <form id="machine-form" style="display: none;" class="one-line">
+            <div class="form-row">
+              <div class="form-group col">
+                    <label for="new-machine-name">Machine Name/Tên máy*</label>
+                    <input type="text" id="new-machine-name" class="form-control" required>
+              </div>
+              <div class="form-group col">
+                  <label for="new-machine-quantity">Quantity/Số lượng*</label>
+                  <input type="number" id="new-machine-quantity" class="form-control" min="1" required>
+              </div>
+              <div class="form-group col-md-6">
+                <label for="description">Description/Mô tả</label>
+                <input type="text" class="form-control" id="mc-description">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group col">
+                  <label for="mc-serial">Serial Number/Số seri</label>
+                  <input type="text" class="form-control" id="mc-serial">
+              </div>
+              <div class="form-group col">
+                  <label for="mc-date">Verification Date/Ngày*</label>
+                  <input type="date" class="form-control" id="mc-date" required>
+              </div>
+              <div class="form-group col">
+                  <label for="mc-location">Location/Địa điểm*</label>
+                  <input type="text" class="form-control" id="mc-location" required>
+              </div>
+              <div class="form-group col">
+                  <label for="mc-pic">PIC/Người phụ trách*</label>
+                  <input type="text" class="form-control" id="mc-pic" required>
+              </div>
+              <div class="form-group col">
+                <label for="mc-type">Type/Loại*</label>
+                <select id="mc-type" class="form-control" required>
+                    <option value="mc-borrow">Borrow Warehouse/Mượn kho</option>
+                    <option value="mc-order">Order Warehouse/RD lĩnh</option>
+                    <option value="mc-rd">Self-assemble/Tự lắp ráp</option>
+                </select>
+              </div>
+            </div>
+            <button class="btn btn-outline-primary btn-submit" type="submit">Add Machine/Thêm máy</button>
+          </form>
+          <!-- Machine List -->
+          <h5 style="margin-top: 8px;">Machine List/ Danh sách máy</h5>
+          <table id="pw-disable" class="table table-bordered">
+            <thead>
+              <tr>
+                  <th>Name</th>
+                  <th>Q'ty</th>
+                  <th>Serial</th>
+                  <th>Date</th>
+                  <th>Location</th>
+                  <th>PIC</th>
+                  <th>Type</th>
+                  <th>Description</th>
+                  <th>Store</th>
+              </tr>
+            </thead>
+            <tbody id="machine-list pw-disable">
+                <!-- Machine items will be listed here -->
+            </tbody>
+          </table>
+          <table id="pw-enable" class="table table-bordered" style="display: none;">
+            <thead>
+              <tr>
+                  <th>Name</th>
+                  <th>Q'ty</th>
+                  <th>Serial</th>
+                  <th>Date</th>
+                  <th>Location</th>
+                  <th>PIC</th>
+                  <th>Type</th>
+                  <th>Description</th>
+                  <th>Store</th>
+                  <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="machine-list">
+                <!-- Machine items will be listed here -->
+            </tbody>
+          </table>
+
+          <!-- Modal edit machine-->
+          <form id="edit-mc-form">
+            <div class="modal fade bd-example-modal-lg" id="modalEditMc" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+              <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLongTitle">Edit machine information</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                  </div>
+                  <div class="modal-body">
+                    <div class="form-row">
+                      <div class="form-group col">
+                            <label for="edit-machine-name">Machine Name/Tên máy*</label>
+                            <input type="text" id="edit-machine-name" class="form-control" required>
+                      </div>
+                      <div class="form-group col">
+                          <label for="new-machine-quantity">Quantity/Số lượng*</label>
+                          <input type="number" id="edit-machine-quantity" class="form-control" min="1" required>
+                      </div>
+                      <div class="form-group col">
+                        <label for="edit-mc-serial">Serial Number/Số seri</label>
+                        <input type="text" class="form-control" id="edit-mc-serial">
+                      </div>
+                    </div>
+                    <div class="form-row">
+                      <div class="form-group col">
+                          <label for="edit-mc-date">Verification Date/Ngày*</label>
+                          <input type="date" class="form-control" id="edit-mc-date" required>
+                      </div>
+                      <div class="form-group col">
+                          <label for="edit-mc-location">Location/Địa điểm*</label>
+                          <input type="text" class="form-control" id="edit-mc-location" required>
+                      </div>
+                      <div class="form-group col">
+                          <label for="edit-mc-pic">PIC/Người phụ trách*</label>
+                          <input type="text" class="form-control" id="edit-mc-pic" required>
+                      </div>
+                      <div class="form-group col">
+                        <label for="edit-mc-store">Store/Kho*</label>
+                        <select id="edit-mc-store" class="form-control" required>
+                            <option value="0057">0057</option>
+                            <option value="0703">0703</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="form-row">
+                      <div class="form-group col-md-6">
+                        <label for="edit-description">Description/Mô tả</label>
+                        <input type="text" class="form-control" id="edit-mc-description">
+                      </div>
+                      <div class="form-group col">
+                        <label for="edit-mc-type">Type/Loại*</label>
+                        <select id="edit-mc-type" class="form-control" required>
+                            <option value="mc-borrow">Borrow Warehouse/Mượn kho</option>
+                            <option value="mc-order">Order Warehouse/RD lĩnh</option>
+                            <option value="mc-rd">Self-assemble/Tự lắp ráp</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save changes</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+        <!-- End Machine list tabs -->
+        <!-- Component list tabs -->
+        <div id="component-tab" class="tab">
+          <form id="component-form" style="display: none;" class="one-line">
+            <div class="form-row">
+              <div class="form-group col">
+                <label for="component-code">SAP code/Mã SAP*</label>
+                <input type="text" id="component-code" class="form-control" required>
+              </div>
+              <div class="form-group col">
+                    <label for="new-component-name">Name/Tên*</label>
+                    <input type="text" id="new-component-name" class="form-control" required>
+              </div>
+              <div class="form-group col">
+                  <label for="new-component-quantity">Quantity/Số lượng*</label>
+                  <input type="number" id="new-component-quantity" class="form-control" min="1" required>
+              </div>
+              <div class="form-group col">
+                <label for="component-doc-no">Doc no/Mã đơn*</label>
+                <input type="text" id="component-doc-no" class="form-control" required>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group col-md-6">
+                <label for="com-description">Description/Mô tả</label>
+                <input type="text" class="form-control" id="com-description">
+              </div>
+              <div class="form-group col">
+                <label for="com-date">Verification Date/Ngày*</label>
+                <input type="date" class="form-control" id="com-date" required>
+              </div>
+              <div class="form-group col">
+                <label for="mc-using">Machine using/Máy sử dụng:</label>
+                <select id="mc-using" class="form-control"></select>
+              </div>
+            </div>
+            <button class="btn btn-outline-primary btn-submit" type="submit">Add Component/Thêm</button>
+          </form>
+          <!-- Component List -->
+          <h5 style="margin-top: 8px;">Component List/ Danh sách linh kiện</h5>
+          <table id="pw-disable" class="table table-bordered">
+            <thead>
+              <tr>
+                  <th>Name</th>
+                  <th>SAP code</th>
+                  <th>Q'ty</th>
+                  <th>Description</th>
+                  <th>Machine using</th>
+                  <th>Doc no</th>
+                  <th>Date</th>
+              </tr>
+            </thead>
+            <tbody id="component-list pw-disable">
+                <!-- Component items will be listed here -->
+            </tbody>
+          </table>
+          <table id="pw-enable" class="table table-bordered" style="display: none;">
+            <thead>
+              <tr>
+                  <th>Name</th>
+                  <th>SAP code</th>
+                  <th>Q'ty</th>
+                  <th>Description</th>
+                  <th>Machine using</th>
+                  <th>Doc no</th>
+                  <th>Date</th>
+                  <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="component-list">
+                <!-- Component items will be listed here -->
+            </tbody>
+          </table>
+            <!-- Modal edit machine-->
+            <form id="edit-com-form">
+              <div class="modal fade bd-example-modal-lg" id="modalEditCom" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title" id="exampleModalLongTitle">Edit component information</h5>
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                      </button>
+                    </div>
+                    <div class="modal-body">
+                      <div class="form-row">
+                        <div class="form-group col">
+                              <label for="edit-com-name">Component Name/Tên liệu*</label>
+                              <input type="text" id="edit-com-name" class="form-control" required>
+                        </div>
+                        <div class="form-group col">
+                          <label for="edit-component-code">SAP code/Mã SAP*</label>
+                          <input type="text" id="edit-component-code" class="form-control" required>
+                        </div>
+                        <div class="form-group col">
+                            <label for="new-com-quantity">Quantity/Số lượng*</label>
+                            <input type="number" id="edit-com-quantity" class="form-control" min="1" required>
+                        </div>
+                      </div>
+                      <div class="form-row">
+                        <div class="form-group col">
+                          <label for="edit-mc-using">Machine using/Máy sử dụng:</label>
+                          <select id="edit-mc-using" class="form-control"></select>
+                        </div>
+                        <div class="form-group col">
+                          <label for="edit-component-doc-no">Doc no/Mã đơn*</label>
+                          <input type="text" id="edit-component-doc-no" class="form-control" required>
+                        </div>
+                        <div class="form-group col">
+                          <label for="edit-com-date">Verification Date/Ngày*</label>
+                          <input type="date" class="form-control" id="edit-com-date" required>
+                        </div>
+                      </div>
+                      <div class="form-row">
+                        <div class="form-group col">
+                          <label for="edit-com-description">Description/Mô tả</label>
+                          <input type="text" class="form-control" id="edit-com-description">
+                        </div>
+                      </div>
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                      <button type="submit" class="btn btn-primary">Save changes</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </form>
+        </div>
+        <!-- End Component list tabs -->
         <!-- PA/Admin tabs -->
         <div id="pa-tab" class="tab">
           <form id="leave-form">
