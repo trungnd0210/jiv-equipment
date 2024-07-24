@@ -49,8 +49,25 @@
             const dbType = document.getElementById('db-type');
             //Admin
             const memberList = document.getElementById('member-list');
+            //Machine form tab - add new 20240722
+            const machineTab = document.getElementById('machine-tab');
+            const machineTabBtn = document.getElementById('machine-tab-btn');
+            const machineForm = document.getElementById('machine-form');
+            const machineList = document.getElementById('machine-list');
+            const machineList_disable = document.getElementById('machine-list pw-disable');
 
-            const correctPassword = "1";
+            //Component form tab - add new 20240722
+            const comTab = document.getElementById('component-tab');
+            const comTabBtn = document.getElementById('component-tab-btn');
+            const comForm = document.getElementById('component-form');
+            const comList = document.getElementById('component-list');
+            const comList_disable = document.getElementById('component-list pw-disable');
+            const mcUsingSelect = document.getElementById('mc-using');
+            const mcEditUsingSelect = document.getElementById('edit-mc-using');
+
+            //Pw admin
+            const correctPassword = "6991";
+            const dccPassword = "dcc4202";
 
             // Function to clear previous Firebase listeners
             function clearFirebaseListeners() {
@@ -68,6 +85,12 @@
             equipmentTabBtn.addEventListener('click', () => {
                 switchTab(equipmentTab);
             });
+            machineTabBtn.addEventListener('click', () => {
+                switchTab(machineTab);
+            });
+            comTabBtn.addEventListener('click', () => {
+                switchTab(comTab);
+            });
             paTabBtn.addEventListener('click', () => {
                 switchTab(paTab);
             });
@@ -78,6 +101,8 @@
             function switchTab(tab) {
                 borrowTab.classList.remove('active');
                 equipmentTab.classList.remove('active');
+                machineTab.classList.remove('active');
+                comTab.classList.remove('active');
                 paTab.classList.remove('active');
                 adminTab.classList.remove('active');
                 dashboardTab.classList.remove('active');
@@ -91,11 +116,25 @@
                 if (password === correctPassword) {
                     passwordForm.style.display = 'none';
                     equipmentForm.style.display = 'block';
+                    machineForm.style.display = 'block';
+                    comForm.style.display = 'block';
                     memberForm.style.display = 'block';
-                    // pw_disable.style.display = 'none';
-                    // pw_enable.style.display = 'block';
                     pwEnableElements.forEach(element => {
-                        element.style.display = 'block';
+                        element.style.display = '';
+                        // element.style.display = 'block';
+                      });
+                    pwDisableElements.forEach(element => {
+                        element.style.display = 'none';
+                    });
+                } else if (password === dccPassword) {
+                    passwordForm.style.display = 'none';
+                    equipmentForm.style.display = 'block';
+                    machineForm.style.display = 'block';
+                    comForm.style.display = 'block';
+                    memberForm.style.display = 'block';
+                    pwEnableElements.forEach(element => {
+                        element.style.display = '';
+                        // element.style.display = 'block';
                       });
                     pwDisableElements.forEach(element => {
                         element.style.display = 'none';
@@ -145,6 +184,294 @@
                 equipmentForm.reset();
             });
 
+            // Add new machine 20240722
+            machineForm.addEventListener('submit', (event) => {
+                event.preventDefault();
+                const name = document.getElementById('new-machine-name').value;
+                const quantity = document.getElementById('new-machine-quantity').value;
+                const description = document.getElementById('mc-description').value;
+                const machineSerial = document.getElementById('mc-serial').value;
+                const verificationDate = document.getElementById('mc-date').value;
+                const mcLocation = document.getElementById('mc-location').value;
+                const mcPIC = document.getElementById('mc-pic').value;
+                const mcType = document.getElementById('mc-type').value;
+                const mcStore = "0057";
+                addMachine(name, quantity, description, machineSerial, verificationDate, mcLocation, mcPIC, mcType, mcStore);
+                machineForm.reset();
+            });
+
+            function addMachine(name, quantity, description, machineSerial, verificationDate, mcLocation, mcPIC, mcType, mcStore) {
+        
+                const newMachineRef = db.ref('machines').push();
+                newMachineRef.set({
+                    name,
+                    quantity,
+                    description,
+                    machineSerial,
+                    verificationDate,
+                    mcLocation,
+                    mcPIC,
+                    mcType,
+                    verificationDate,
+                    mcStore
+                }).then(() => {
+                    alert('Machine submitted successfully');
+                    updateMachineUsingSelect();
+                    loadData();
+                }).catch((error) => {
+                    console.error("Error adding equipment: ", error);
+                });
+            }
+
+            //Display machine function 20240722
+            db.ref('machines').on('value', (snapshot) => {
+                machineList.innerHTML = '';
+                snapshot.forEach((childSnapshot) => {
+                    const key = childSnapshot.key;
+                    const machine = childSnapshot.val();
+                    displayMachine(key, machine.description, machine.machineSerial, machine.mcLocation, machine.mcPIC, machine.mcType, machine.name,
+                         machine.quantity, machine.verificationDate, machine.mcStore);
+                    displayMachine_disable(key, machine.description, machine.machineSerial, machine.mcLocation, machine.mcPIC, machine.mcType, machine.name,
+                        machine.quantity, machine.verificationDate, machine.mcStore);
+                });
+            });
+            
+            function displayMachine(key, des, serial, location, pic, type, name, quantity, date, store) {
+                const machineItem = document.createElement('tr');
+                machineItem.innerHTML = `
+                    <td>${name}</td>
+                    <td>${quantity}</td>
+                    <td>${serial}</td>
+                    <td>${date}</td>
+                    <td>${location}</td>
+                    <td>${pic}</td>
+                    <td>${type}</td>
+                    <td>${des}</td>
+                    <td>${store}</td>
+                    <td>
+                        <button type="button" class="btn btn-outline-dark editBtn" data-toggle="modal" data-target="#modalEditMc" data-id=${key}>
+                            <i class="fi fi-rr-edit"></i>
+                        </button>
+                    </td>
+                `;
+                // <td style="width: 116px;">
+                // <button type="button" class="btn btn-outline-warning switchBtn" data-id=${key}>
+                // <i class="fi fi-rr-replace"></i>
+                // </button>
+                machineList.appendChild(machineItem);
+            }
+
+            function displayMachine_disable(key, des, serial, location, pic, type, name, quantity, date, store) {
+                const machineItem = document.createElement('tr');
+                machineItem.innerHTML = `
+                    <td>${name}</td>
+                    <td>${quantity}</td>
+                    <td>${serial}</td>
+                    <td>${date}</td>
+                    <td>${location}</td>
+                    <td>${pic}</td>
+                    <td>${type}</td>
+                    <td>${des}</td>
+                    <td>${store}</td>
+                `;
+                machineList_disable.appendChild(machineItem);
+            }
+            //Edit machine func 20240723
+            let mckey = "";
+            document.addEventListener('click', function (event) {
+                const target = event.target;
+                if (target.matches('.editBtn') || target.matches('.editBtn i')) {
+                    const key = target.dataset.id || target.parentElement.dataset.id; // Get the data-id from the node itself or parent node
+                    mckey = key;
+                    db.ref(`machines/${key}`).once('value', (snapshot) => {
+                        const machine = snapshot.val();
+                        document.getElementById('edit-machine-name').value = machine.name;
+                        document.getElementById('edit-machine-quantity').value = machine.quantity;
+                        document.getElementById('edit-mc-serial').value = machine.machineSerial;
+                        document.getElementById('edit-mc-date').value = machine.verificationDate;
+                        document.getElementById('edit-mc-location').value = machine.mcLocation;
+                        document.getElementById('edit-mc-pic').value = machine.mcPIC;
+                        document.getElementById('edit-mc-description').value = machine.description;
+                        document.getElementById('edit-mc-type').value = machine.mcType;
+                        document.getElementById('edit-mc-store').value = machine.mcStore;
+                    });
+                }
+            });
+            
+            document.getElementById('edit-mc-form').addEventListener('submit', (event) => {
+                event.preventDefault(); // Prevent default submission
+            
+                const updatedMachine = {
+                    name: document.getElementById('edit-machine-name').value,
+                    quantity: document.getElementById('edit-machine-quantity').value,
+                    machineSerial: document.getElementById('edit-mc-serial').value,
+                    verificationDate: document.getElementById('edit-mc-date').value,
+                    mcLocation: document.getElementById('edit-mc-location').value,
+                    mcPIC: document.getElementById('edit-mc-pic').value,
+                    description: document.getElementById('edit-mc-description').value,
+                    mcType: document.getElementById('edit-mc-type').value,
+                    mcStore: document.getElementById('edit-mc-store').value
+                };
+            
+                db.ref(`machines/${mckey}`).update(updatedMachine)
+                    .then(() => {
+                        alert('Update successfully! Thành công!');
+                        // Close the model editing form
+                        $('#modalEditMc').modal('hide');
+                    })
+                    .catch(error => {
+                        console.error("Error while updating: ", error);
+                    });
+            });
+            
+            // Add new component 20240722
+            comForm.addEventListener('submit', (event) => {
+                event.preventDefault();
+                const name = document.getElementById('new-component-name').value;
+                const sapCode = document.getElementById('component-code').value;
+                const quantity = document.getElementById('new-component-quantity').value;
+                const docNo = document.getElementById('component-doc-no').value;
+                const description = document.getElementById('com-description').value;
+                const mcUsing= document.getElementById('mc-using').value;
+                const date= document.getElementById('com-date').value;
+                addComponent(name, sapCode, quantity, docNo, description, mcUsing, date);
+                comForm.reset();
+            });
+
+            function addComponent(name, sapCode, quantity, docNo, description, mcUsing, date) {
+        
+                const newComRef = db.ref('components').push();
+                newComRef.set({
+                    name,
+                    sapCode,
+                    quantity,
+                    description,
+                    docNo,
+                    mcUsing,
+                    date,
+                }).then(() => {
+                    alert('Component submitted successfully');
+                    loadData();
+                }).catch((error) => {
+                    console.error("Error adding equipment: ", error);
+                });
+            }
+
+            //Display component function 20240722
+            db.ref('components').on('value', (snapshot) => {
+                comList.innerHTML = '';
+                snapshot.forEach((childSnapshot) => {
+                    const key = childSnapshot.key;
+                    const component = childSnapshot.val();
+                    displayComponent(key, component.description, component.mcUsing, component.name, component.quantity, component.sapCode, component.docNo, component.date);
+                    displayComponent_disable(key, component.description, component.mcUsing, component.name, component.quantity, component.sapCode, component.docNo, component.date);
+                });
+                updateMachineUsingSelect();
+            });
+            
+            function displayComponent(key, des, mcUsing, name, quantity, sapCode, docNo, date) {
+                const comItem = document.createElement('tr');
+                comItem.innerHTML = `
+                    <td>${name}</td>
+                    <td>${sapCode}</td>
+                    <td>${quantity}</td>
+                    <td>${des}</td>
+                    <td>${mcUsing}</td>
+                    <td>${docNo}</td>
+                    <td>${date}</td>
+                    <td>
+                    <button type="button" class="btn btn-outline-dark editBtn" data-toggle="modal" data-target="#modalEditCom" data-id=${key}>
+                        <i class="fi fi-rr-edit"></i>
+                    </button>
+                </td>
+                `;
+                comList.appendChild(comItem);
+            }
+
+            function displayComponent_disable(key, des, mcUsing, name, quantity, sapCode, docNo, date) {
+                const comItem = document.createElement('tr');
+                comItem.innerHTML = `
+                    <td>${name}</td>
+                    <td>${sapCode}</td>
+                    <td>${quantity}</td>
+                    <td>${des}</td>
+                    <td>${mcUsing}</td>
+                    <td>${docNo}</td>
+                    <td>${date}</td>
+                `;
+                comList_disable.appendChild(comItem);
+            }
+
+            function updateMachineUsingSelect() {
+                db.ref('machines').once('value', (snapshot) => {
+                    mcUsingSelect.innerHTML = '';
+                    mcEditUsingSelect.innerHTML = '';
+                    snapshot.forEach((childSnapshot) => {
+                        const machine = childSnapshot.val();
+                        if (machine.mcType === "mc-rd" && machine.quantity > 0) {
+                            const option = document.createElement('option');
+                            option.value = machine.name;
+                            option.innerHTML = `${machine.name} [${machine.quantity}]`;
+                            mcUsingSelect.appendChild(option);
+                        }
+                    });
+                    snapshot.forEach((childSnapshot) => {
+                        const machine = childSnapshot.val();
+                        if (machine.mcType === "mc-rd" && machine.quantity > 0) {
+                            const option = document.createElement('option');
+                            option.value = machine.name;
+                            option.innerHTML = `${machine.name} [${machine.quantity}]`;
+                            mcEditUsingSelect.appendChild(option);
+                        }
+                    });
+                });
+            }
+
+            //Edit component func 20240724
+            let comkey = "";
+            document.addEventListener('click', function (event) {
+                const target = event.target;
+                if (target.matches('.editBtn') || target.matches('.editBtn i')) {
+                    const key = target.dataset.id || target.parentElement.dataset.id; // Get the data-id from the node itself or parent node
+                    comkey = key;
+                    db.ref(`components/${key}`).once('value', (snapshot) => {
+                        const component = snapshot.val();
+                        updateMachineUsingSelect();
+                        document.getElementById('edit-com-name').value = component.name;
+                        document.getElementById('edit-component-code').value = component.sapCode;
+                        document.getElementById('edit-com-quantity').value = component.quantity;
+                        document.getElementById('edit-mc-using').value = component.mcUsing;
+                        document.getElementById('edit-component-doc-no').value = component.docNo;
+                        document.getElementById('edit-com-description').value = component.description;
+                        document.getElementById('edit-com-date').value = component.date;
+                    });
+                }
+            });
+            
+            document.getElementById('edit-com-form').addEventListener('submit', (event) => {
+                event.preventDefault(); // Prevent default submission
+            
+                const updatedCom = {
+                    name: document.getElementById('edit-com-name').value,
+                    sapCode: document.getElementById('edit-component-code').value,
+                    quantity: document.getElementById('edit-com-quantity').value,
+                    mcUsing: document.getElementById('edit-mc-using').value,
+                    docNo: document.getElementById('edit-component-doc-no').value,
+                    description: document.getElementById('edit-com-description').value,
+                    date: document.getElementById('edit-com-date').value,
+                };
+            
+                db.ref(`components/${mckey}`).update(updatedCom)
+                    .then(() => {
+                        alert('Update successfully! Thành công!');
+                        // Close the model editing form
+                        $('#modalEditCom').modal('hide');
+                    })
+                    .catch(error => {
+                        console.error("Error while updating: ", error);
+                    });
+            });
+            /////////////////////////////////////////
             function borrowEquipment(name, equipment, borrowTime, quantity) {
                 db.ref('equipment').orderByChild('name').equalTo(equipment).once('value', (snapshot) => {
                     snapshot.forEach((childSnapshot) => {
@@ -246,8 +573,14 @@
                     <td>${verificationDate}</td>
                     <td>${cycle}</td>
                     <td>${validDate}</td>
-                    <td><button type="button" class="btn btn-outline-dark editBtn" data-id=${key}>Edit</button>
-                    <button type="button" class="btn btn-outline-danger deleteBtn" data-id=${key} style="margin-top: 4px;">Delete</button></td>
+                    <td style="width: 116px;">
+                        <button type="button" class="btn btn-outline-dark editBtn" data-id=${key}>
+                            <i class="fi fi-rr-edit"></i>
+                        </button>
+                        <button type="button" class="btn btn-outline-danger deleteBtn" data-id=${key}>
+                            <i class="fi fi-rs-trash"></i>
+                        </button>
+                    </td>
                 `;
                 equipmentList.appendChild(equipmentItem);
             }
@@ -348,7 +681,7 @@
                     snapshot.forEach((childSnapshot) => {
                         const key = childSnapshot.key;
                         const member = childSnapshot.val();
-                        displayMember(key, member.department, member.eng_name, member.name, member.grade, member.hire_date, member.id, member.mail, member.phone);
+                        displayMember(key, member.emp_department, member.eng_name, member.name, member.grade, member.hire_date, member.id, member.mail, member.phone);
                     });
                     updateEquipmentSelect();
                 });
