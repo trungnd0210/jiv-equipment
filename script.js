@@ -471,6 +471,35 @@
                         console.error("Error while updating: ", error);
                     });
             });
+
+            //Search component function 20240724
+            const searchBox = document.getElementById('searchBox');
+            function searchComponents(query) {
+                db.ref('components').once('value', (snapshot) => {
+                    comList.innerHTML = '';
+                    comList_disable.innerHTML = '';
+                    snapshot.forEach((childSnapshot) => {
+                        const key = childSnapshot.key;
+                        const component = childSnapshot.val();
+                        if (component.name.toLowerCase().includes(query.toLowerCase()) || component.mcUsing.toLowerCase().includes(query.toLowerCase()) || 
+                            component.description.toLowerCase().includes(query.toLowerCase()) || 
+                            component.sapCode.toLowerCase().includes(query.toLowerCase())) {
+                            displayComponent(key, component.description, component.mcUsing, component.name, component.quantity, component.sapCode, component.docNo, component.date);
+                            displayComponent_disable(key, component.description, component.mcUsing, component.name, component.quantity, component.sapCode, component.docNo, component.date);
+                        }
+                    });
+                    updateMachineUsingSelect();
+                });
+            }
+    
+            searchBox.addEventListener('input', (event) => {
+                const query = event.target.value;
+                searchComponents(query);
+            });
+    
+            // Tải danh sách ban đầu khi không có từ khóa tìm kiếm
+            searchComponents('');
+
             /////////////////////////////////////////
             function borrowEquipment(name, equipment, borrowTime, quantity) {
                 db.ref('equipment').orderByChild('name').equalTo(equipment).once('value', (snapshot) => {
@@ -562,6 +591,7 @@
                 borrowList_disable.appendChild(borrowItem_disable);
             }
 
+            // Display equipment function
             function displayEquipment(key, name, quantity, department, pic, serialNumber, verificationDate, cycle, validDate) {
                 const equipmentItem = document.createElement('tr');
                 equipmentItem.innerHTML = `
@@ -573,12 +603,9 @@
                     <td>${verificationDate}</td>
                     <td>${cycle}</td>
                     <td>${validDate}</td>
-                    <td style="width: 116px;">
-                        <button type="button" class="btn btn-outline-dark editBtn" data-id=${key}>
+                    <td>
+                        <button type="button" class="btn btn-outline-dark editBtn" data-toggle="modal" data-target="#modalEditEquip" data-id=${key}>
                             <i class="fi fi-rr-edit"></i>
-                        </button>
-                        <button type="button" class="btn btn-outline-danger deleteBtn" data-id=${key}>
-                            <i class="fi fi-rs-trash"></i>
                         </button>
                     </td>
                 `;
@@ -600,6 +627,50 @@
                 equipmentList_disable.appendChild(equipmentItem);
             }
 
+            //Edit equipment func 20240724
+            let equipkey = "";
+            document.addEventListener('click', function (event) {
+                const target = event.target;
+                if (target.matches('.editBtn') || target.matches('.editBtn i')) {
+                    const key = target.dataset.id || target.parentElement.dataset.id; // Get the data-id from the node itself or parent node
+                    equipkey = key;
+                    db.ref(`equipment/${key}`).once('value', (snapshot) => {
+                        const equip = snapshot.val();
+                        updateMachineUsingSelect();
+                        document.getElementById('edit-equipment-name').value = equip.name;
+                        document.getElementById('edit-equipment-quantity').value = equip.quantity;
+                        document.getElementById('edit-equip-department').value = equip.department;
+                        document.getElementById('edit-serial-number').value = equip.serialNumber;
+                        document.getElementById('edit-verification-date').value = equip.verificationDate;
+                        document.getElementById('edit-cycle').value = equip.cycle;
+                        document.getElementById('edit-pic').value = equip.pic;
+                    });
+                }
+            });
+            
+            document.getElementById('edit-equip-form').addEventListener('submit', (event) => {
+                event.preventDefault(); // Prevent default submission
+            
+                const updatedCom = {
+                    name: document.getElementById('edit-equipment-name').value,
+                    quantity: document.getElementById('edit-equipment-quantity').value,
+                    department: document.getElementById('edit-equip-department').value,
+                    serialNumber: document.getElementById('edit-serial-number').value,
+                    verificationDate: document.getElementById('edit-verification-date').value,
+                    cycle: document.getElementById('edit-cycle').value,
+                    pic: document.getElementById('edit-pic').value,
+                };
+            
+                db.ref(`equipment/${mckey}`).update(updatedCom)
+                    .then(() => {
+                        alert('Update successfully! Thành công!');
+                        // Close the model editing form
+                        $('#modalEditEquip').modal('hide');
+                    })
+                    .catch(error => {
+                        console.error("Error while updating: ", error);
+                    });
+            });
 
             // Add event listeners for edit and delete buttons 20240626
             document.querySelectorAll('.editBtn').forEach(button => {
