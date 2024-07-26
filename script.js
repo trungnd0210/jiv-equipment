@@ -65,6 +65,10 @@
             const mcUsingSelect = document.getElementById('mc-using');
             const mcEditUsingSelect = document.getElementById('edit-mc-using');
 
+            //DQA - bug control tab - 20240725
+            const dqaBugTabBtn = document.getElementById('bug-control-btn');
+            const dqaBugTab = document.getElementById('bug-control-tab');
+
             //Pw admin
             const correctPassword = "6991";
             const dccPassword = "dcc4202";
@@ -91,6 +95,9 @@
             comTabBtn.addEventListener('click', () => {
                 switchTab(comTab);
             });
+            dqaBugTabBtn.addEventListener('click', () => {
+                switchTab(dqaBugTab);
+            });
             paTabBtn.addEventListener('click', () => {
                 switchTab(paTab);
             });
@@ -103,6 +110,7 @@
                 equipmentTab.classList.remove('active');
                 machineTab.classList.remove('active');
                 comTab.classList.remove('active');
+                dqaBugTab.classList.remove('active');
                 paTab.classList.remove('active');
                 adminTab.classList.remove('active');
                 dashboardTab.classList.remove('active');
@@ -1065,4 +1073,32 @@
                 console.error('Error deleting equipment: ', error);
             });
         }
+    }
+
+    const JIRA_API_PROXY_URL = 'https://jivrd.vercel.app//api/jira';
+
+    async function fetchJiraIssuesByJQL(jql) {
+        let startAt = 0;
+        let maxResults = 50;
+        let allIssues = [];
+
+        while (true) {
+            const response = await fetch(`${JIRA_API_PROXY_URL}?jql=${encodeURIComponent(jql)}&startAt=${startAt}&maxResults=${maxResults}`);
+
+            if (response.ok) {
+                const data = await response.json();
+                allIssues = allIssues.concat(data.issues);
+                if (data.issues.length < maxResults) {
+                    // No more issues to fetch
+                    break;
+                }
+                startAt += maxResults;
+            } else {
+                console.error('Failed to fetch Jira issues:', response.status, response.statusText);
+                break;
+            }
+        }
+
+        displayIssues(allIssues);
+        console.log(allIssues);
     }
