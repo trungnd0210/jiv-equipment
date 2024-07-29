@@ -80,29 +80,38 @@
             }
 
             // Tab switching 20240610
+            const container = document.querySelector('.container');
             dashboardTabBtn.addEventListener('click', () => {
                 switchTab(dashboardTab);
+                container.classList.remove('container-wide');
             });
             borrowTabBtn.addEventListener('click', () => {
                 switchTab(borrowTab);
+                container.classList.remove('container-wide');
             });
             equipmentTabBtn.addEventListener('click', () => {
                 switchTab(equipmentTab);
+                container.classList.remove('container-wide');
             });
             machineTabBtn.addEventListener('click', () => {
                 switchTab(machineTab);
+                container.classList.remove('container-wide');
             });
             comTabBtn.addEventListener('click', () => {
                 switchTab(comTab);
+                container.classList.remove('container-wide');
             });
             dqaJobListTabBtn.addEventListener('click', () => {
                 switchTab(jobListTab);
+                container.classList.add('container-wide');
             })
             paTabBtn.addEventListener('click', () => {
                 switchTab(paTab);
+                container.classList.remove('container-wide');
             });
             adminTabBtn.addEventListener('click', () => {
                 switchTab(adminTab);
+                container.classList.remove('container-wide');
             });
             
             function switchTab(tab) {
@@ -766,48 +775,6 @@
                 });
             }
 
-            // Handle leave form submission 20240610
-            // leaveForm.addEventListener('submit', (event) => {
-            //     event.preventDefault();
-            //     const id = document.getElementById('leave-id').value;
-            //     const period = document.getElementById('leave-period').value;
-            //     const leaveTime = document.getElementById('leave-date').value;
-
-            //     console.log(id);
-            //     console.log(typeof id);
-            //     if (id && period && leaveTime) {
-            //         db.ref('member').child(id).once('value').then((snapshot) => {
-            //             if (snapshot.exists()) {
-            //                 const name = snapshot.val().name;
-            //                 db.ref('leaves').push({
-            //                     id: id,
-            //                     name: name,
-            //                     period: period,
-            //                     leaveTime: leaveTime,
-            //                 }).then(() => {
-            //                     alert('Leave submitted successfully');
-            //                     leaveForm.reset();
-            //                 }).catch((error) => {
-            //                     console.error('Error submitting leave:', error);
-            //                 });
-            //             } else {
-            //                 alert('Member ID not found');
-            //             }
-            //         }).catch((error) => {
-            //             console.error('Error fetching member data:', error);
-            //         });
-            //     }
-
-                // db.ref('leaves').push({
-                //     id: id,
-                //     period: period,
-                //     leaveTime: leaveTime
-                // });
-                // alert('Leave submitted successfully');
-                // leaveForm.reset();
-            // });
-
-
             // Form submit leave #update 20240715 add more check name based on memberId
             leaveForm.addEventListener('submit', (event) => {
                 event.preventDefault();
@@ -848,23 +815,6 @@
                   }
                 });
             }
-
-            // Handle overtime form submission
-            // overtimeForm.addEventListener('submit', (event) => {
-            //     event.preventDefault();
-            //     const id = document.getElementById('overtime-id').value;
-            //     const date = document.getElementById('overtime-date').value || new Date().toISOString().split('T')[0];
-            //     const ot_hour = document.getElementById('ot-hour').value;
-            //     const meal_check = document.getElementById('meal-check').checked;
-            //     db.ref('overtime').push({
-            //         id: id,
-            //         date: date,
-            //         ot_hour: ot_hour,
-            //         meal_check: meal_check
-            //     });
-            //     alert('Overtime submitted successfully');
-            //     overtimeForm.reset();
-            // });
 
             // Form submit overtime #update 20240715 add more check name based on memberId
             overtimeForm.addEventListener('submit', (event) => {
@@ -1281,59 +1231,64 @@
                     });
             });
 
+            //Hide update and show as a button
+            const uploadBtn = document.querySelector('.uploadBtn');
+            const fileInput = document.getElementById('file-upload');
+
+            uploadBtn.addEventListener('click', () => {
+                fileInput.click();
+            });
+
+            //Update DB through Excel
+            document.getElementById('file-upload').addEventListener('change', function(event) {
+                const file = event.target.files[0];
+                
+                if (!file) {
+                    alert('Please choose a file first!');
+                    return;
+                }
+            
+                const confirmUpload = confirm('Do you want to upload this file?');
+            
+                if (!confirmUpload) {
+                    return;
+                }
+            
+                const reader = new FileReader();
+            
+                reader.onload = function(e) {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+            
+                    // Assume the first sheet is the one we want to read
+                    const sheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[sheetName];
+            
+                    // Convert sheet to JSON
+                    const jsonData = XLSX.utils.sheet_to_json(worksheet);
+            
+                    // Function to update Firebase database
+                    updateFirebaseDatabase(jsonData);
+                };
+            
+                reader.readAsArrayBuffer(file);
+            });
+            
+            function updateFirebaseDatabase(data) {
+                data.forEach(job => {
+                    const newJobKey = db.ref().child('job_items').push().key;
+                    db.ref('job_items/' + newJobKey).set(job, function(error) {
+                        if (error) {
+                            console.error("Error updating database: ", error);
+                        } else {
+                            console.log("Data updated successfully!");
+                        }
+                    });
+                });
+            }
 
             loadData();
         });
-
-        // Listen for return requests in the admin panel
-        // db.ref('returns').on('child_added', (snapshot) => {
-        //     const data = snapshot.val();
-        //     const li = document.createElement('li');
-        //     li.textContent = `Name: ${data.name}, Equipment: ${data.equipment}, Borrowed at: ${data.borrowTime}`;
-        //     const approveButton = document.createElement('button');
-        //     approveButton.textContent = 'Approve';
-        //     approveButton.addEventListener('click', () => {
-        //         db.ref('borrowHistory/' + data.id).set(data);
-        //         db.ref('returns/' + data.id).remove();
-        //         li.remove();
-        //     });
-        //     const rejectButton = document.createElement('button');
-        //     rejectButton.textContent = 'Reject';
-        //     rejectButton.addEventListener('click', () => {
-        //         db.ref('returns/' + data.id).remove();
-        //         db.ref('currentBorrows/' + data.id).set(data);
-        //         li.remove();
-        //     });
-        //     li.appendChild(approveButton);
-        //     li.appendChild(rejectButton);
-        //     returnRequests.appendChild(li);
-        // });
-
-        // Password protection for admin tab 20240610
-        // adminPasswordForm.addEventListener('submit', (event) => {
-        //     event.preventDefault();
-        //     const password = document.getElementById('admin-password').value;
-        //     if (password === correctPassword) {
-        //         adminPasswordForm.style.display = 'none';
-        //         document.getElementById('admin-panel').style.display = 'block';
-        //     } else {
-        //         alert('Incorrect password');
-        //     }
-        // });
-    
-        // Handle return requests
-        // borrowList.addEventListener('click', (event) => {
-        //     if (event.target.classList.contains('return')) {
-        //         const itemId = event.target.dataset.id;
-        //         db.ref('returns/' + itemId).set({
-        //             id: itemId,
-        //             name: event.target.dataset.name,
-        //             equipment: event.target.dataset.equipment,
-        //             borrowTime: event.target.dataset.borrowTime,
-        //         });
-        //         event.target.parentElement.remove();
-        //     }
-        // });
 
     // Handle return requests 20240626
     function handleDelete(event) {

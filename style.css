@@ -16,6 +16,10 @@ body {
     margin: auto;
 }
 
+.container-wide {
+    max-width: 1300px !important;
+  }
+
 h1, h2 {
     color: #333;
 }
@@ -229,3 +233,52 @@ table.table-bordered.table-xs {
   table.table-bordered.table-xs th {
     height: 40px;
   }
+
+.table-container {
+    max-height: 78vh; /* Adjust as needed */
+    overflow: auto;
+    /* margin: 20px; */
+}
+
+.table-xs th, .table-xs td {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.table-xs th {
+    background-color: #f8f9fa;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+/* Adjust column widths */
+.table-xs th:nth-child(5), .table-xs td:nth-child(5) {
+    max-width: 300px; /* Content column */
+}
+
+.table-xs th:nth-child(6), .table-xs td:nth-child(6) {
+    max-width: 200px; /* Date>>Action column */
+}
+
+.table-xs th:not(:nth-child(5)):not(:nth-child(6)), 
+.table-xs td:not(:nth-child(5)):not(:nth-child(6)) {
+    max-width: 100px; /* Other columns */
+}
+
+/* Tăng kích thước của hàng và cho phép xuống dòng tối đa 3 dòng */
+.table-xs td {
+    white-space: normal; /* Cho phép nội dung xuống dòng */
+    word-wrap: break-word; /* Đảm bảo từ dài cũng xuống dòng */
+    overflow: hidden;
+    /* display: -webkit-box; */
+    -webkit-line-clamp: 3; /* Giới hạn tối đa 3 dòng */
+    -webkit-box-orient: vertical;
+    max-height: 4.5em; /* Điều chỉnh để phù hợp với 3 dòng */
+}
+
+/* Đảm bảo chiều cao của hàng là động để chứa nội dung */
+.table-xs tr {
+    height: auto;
+}
