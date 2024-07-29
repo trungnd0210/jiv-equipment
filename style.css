@@ -2,7 +2,7 @@
 
 body {
     font-family: Arial, sans-serif;
-    background-color: #f0f0f0;
+    background-color: #fff9e8 !important;
     margin: 0;
     padding: 20px;
 }
@@ -146,6 +146,12 @@ button.return:hover {
     cursor: pointer;
 }
 
+.btn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
 .btn-submit {
     margin-top: 20px;
     margin-bottom: 20px;
@@ -190,3 +196,36 @@ footer {
     justify-content: center; /* Căn giữa theo chiều ngang */
     align-items: center; /* Căn giữa theo chiều dọc */
 }
+
+.content .container-fluid {
+    padding: 20px;
+}
+
+.content {
+    padding: 20px;
+}
+
+.form-row.hidden {
+    display: none;
+}
+
+.status-active {
+    background-color: #cafbca;
+}
+
+.status-closed {
+    background-color: #dbdbdb;
+}
+
+.status-pending {
+    background-color: #f5cc98; /* Hoặc bất kỳ màu xanh lá cây nào bạn thích */
+}
+
+table.table-bordered.table-xs {
+    font-size: 14px; /* Điều chỉnh kích thước font theo ý muốn */
+  }
+  
+  table.table-bordered.table-xs td,
+  table.table-bordered.table-xs th {
+    height: 40px;
+  }

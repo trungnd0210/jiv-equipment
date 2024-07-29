@@ -65,6 +65,10 @@
             const mcUsingSelect = document.getElementById('mc-using');
             const mcEditUsingSelect = document.getElementById('edit-mc-using');
 
+            //DQA - bug control tab - 20240727
+            const dqaJobListTabBtn = document.getElementById('job-list-btn');
+            const jobListTab = document.getElementById('job-list-tab');
+
             //Pw admin
             const correctPassword = "6991";
             const dccPassword = "dcc4202";
@@ -91,6 +95,9 @@
             comTabBtn.addEventListener('click', () => {
                 switchTab(comTab);
             });
+            dqaJobListTabBtn.addEventListener('click', () => {
+                switchTab(jobListTab);
+            })
             paTabBtn.addEventListener('click', () => {
                 switchTab(paTab);
             });
@@ -103,6 +110,7 @@
                 equipmentTab.classList.remove('active');
                 machineTab.classList.remove('active');
                 comTab.classList.remove('active');
+                jobListTab.classList.remove('active');
                 paTab.classList.remove('active');
                 adminTab.classList.remove('active');
                 dashboardTab.classList.remove('active');
@@ -995,6 +1003,284 @@
                 `;
                 memberList.appendChild(memberItem);
             }
+
+            //DQA job list tab - add job
+            let trackno = '';
+            let link = '';
+            document.addEventListener('click', async function (event) {
+            // document.getElementById('add-job-item-form').addEventListener('focusin', async function (event) {
+                if (event.target.id === 'add-job-type') {
+                    return; // Ignore focus event on job type field
+                }
+            
+                const typeElement = document.getElementById('add-job-type');
+                const type = typeElement.value;
+                const date = new Date();
+                const year = date.getFullYear().toString().slice(-2);
+                let tracknoPrefix = '';
+            
+                switch (type) {
+                    case 'software-test':
+                        tracknoPrefix = 'DQA-SW-' + year + '-';
+                        break;
+                    case 'system-test':
+                        tracknoPrefix = 'DQA-SYS-' + year + '-';
+                        break;
+                    case 'regulatory-test':
+                        tracknoPrefix = 'DQA-REG-' + year + '-';
+                        break;
+                    case 'ols':
+                        tracknoPrefix = '';
+                        break;
+                    default:
+                        tracknoPrefix = 'DQA-O-' + year + '-';
+                }
+            
+                try {
+                    const snapshot = await db.ref('trackno/' + type).orderByKey().limitToLast(1).once('value');
+                    let latestTrackNo = null;
+                    snapshot.forEach(childSnapshot => {
+                        latestTrackNo = childSnapshot.key;
+                    });
+            
+                    let newSuffix = '0001';
+                    if (latestTrackNo) {
+                        const currentSuffix = parseInt(latestTrackNo.split('-').pop());
+                        newSuffix = (currentSuffix + 1).toString().padStart(4, '0');
+                    }
+                    trackno = tracknoPrefix + newSuffix;
+                } catch (error) {
+                    console.error('Error fetching the latest track no:', error);
+                }
+            });
+            
+            document.getElementById('add-job-type').addEventListener('change', function () {
+                const type = this.value;
+                // Show/hide fields based on the selected type
+                ['software-test', 'system-test', 'regulatory-test', 'ols'].forEach(testType => {
+                    document.getElementById(testType + '-fields').classList.add('hidden');
+                });
+                if (type) {
+                    document.getElementById(type + '-fields').classList.remove('hidden');
+                }
+            });
+
+            document.getElementById('add-job-item-form').addEventListener('submit', (event) => {
+                event.preventDefault();
+                const model = document.getElementById('add-job-model').value;
+                const start_date = document.getElementById('add-job-start-date').value;
+                const target_date = document.getElementById('add-job-target-date').value;
+                const type = document.getElementById('add-job-type').value;
+                const detail = document.getElementById('add-job-details').value;
+                const announcer = document.getElementById('add-job-announcer').value;
+                const pic = document.getElementById('add-job-pic').value;
+                const doc = document.getElementById('add-job-doc').value;
+                const finish_date = document.getElementById('add-job-finish-date').value;
+                const action = document.getElementById('add-job-action').value;
+                const version = document.getElementById('add-job-sw-version').value;
+                const status = 'Active';
+
+                link = '\\\\10.100.28.65\\ee\\12 DQA\\101.Data\\' + trackno;
+
+                let extraFields = {};
+                if (type === 'software-test') {
+                    extraFields = { 
+                        version: document.getElementById('add-job-sw-version').value,
+                        dqa_result_date: document.getElementById('add-job-dqa-result-date').value,
+                        dqa_result: document.getElementById('add-job-dqa-result').value,
+                        final_result_date: document.getElementById('add-job-sw-final-result-date').value,
+                        final_result: document.getElementById('add-job-sw-final-result').value,
+                        sprint: document.getElementById('add-job-sprint').value
+                    };
+                    link = '\\\\10.100.28.65\\ee\\12 DQA\\02.Software\\05.Testing software\\' + model + '\\' + version;
+                } else if (type === 'system-test') {
+                    extraFields = {
+                        version: document.getElementById('add-job-sys-version').value,
+                        final_result_date: document.getElementById('add-job-sys-final-result-date').value,
+                        final_result: document.getElementById('add-job-sys-final-result').value,
+                        test_detail: document.getElementById('add-job-sys-test-detail').value
+                    };
+                } else if (type === 'regulatory-test') {
+                    extraFields = {
+                        test_phase: document.getElementById('add-job-test-phase').value,
+                        final_result_date: document.getElementById('add-job-reg-final-result-date').value,
+                        final_result: document.getElementById('add-job-reg-final-result').value,
+                        test_detail: document.getElementById('add-job-reg-test-detail').value
+                    };
+                } else if (type === 'ols') {
+                    extraFields = {
+                        ols_num: document.getElementById('add-job-ols').value,
+                    };
+                    trackno = document.getElementById('add-job-ols').value;
+                    link = '\\\\10.100.28.65\\ee\\12 DQA\\101.Data\\' + trackno;
+                }
+
+                db.ref('job_items').push({
+                    trackno: trackno,
+                    model: model,
+                    start_date: start_date,
+                    target_date: target_date,
+                    link: link,
+                    type: type,
+                    detail: detail,
+                    announcer: announcer,
+                    pic: pic,
+                    doc: doc,
+                    finish_date: finish_date,
+                    action: action,
+                    status: status,
+                    ...extraFields
+                });
+
+                db.ref('trackno/' + type + '/' + trackno).set(true);
+
+                alert('Form submitted successfully');
+                document.getElementById('add-job-item-form').reset();
+                $('#modalAddJobItem').modal('hide');
+            });
+
+            // Display job function
+            const jobList = document.getElementById('job-list');
+
+            db.ref('job_items').on('value', (snapshot) => {
+                jobList.innerHTML = '';
+                snapshot.forEach((childSnapshot) => {
+                    const key = childSnapshot.key;
+                    const job_item = childSnapshot.val();
+                    displayJob(key, job_item.trackno, job_item.model, job_item.start_date, job_item.version, job_item.status, job_item.detail, job_item.action, job_item.doc, job_item.link);
+                });
+            });
+
+            function displayJob(key, trackno, model, start_date, version, status, detail, action, doc, link) {
+                const jobItem = document.createElement('tr');
+                jobItem.innerHTML = `
+                    <td><a href="${link}">${trackno}</a></td>
+                    <td>${model}</td>
+                    <td>${start_date}</td>
+                    <td>${version}</td>
+                    <td>${detail}</td>
+                    <td>${action}</td>
+                    <td class="${status === 'Active' ? 'status-active' : status === 'Closed' ? 'status-closed' : status === 'Pending' ? 'status-pending' : ''}">${status}</td>
+                    <td>
+                        <button type="button" class="btn btn-outline-dark editBtn" data-toggle="modal" data-target="#modalEditJobItem" data-id=${key}>
+                            <i class="fi fi-rr-edit"></i>
+                        </button>
+                    </td>
+                `;
+                // <td>${status === 'Active' ? `<span class="badge bg-success">Active</span>` : status}</td>
+                jobList.appendChild(jobItem);
+            }
+
+            // Edit job func 20240729
+            let jobkey = "";
+
+            document.addEventListener('click', function (event) {
+                const target = event.target;
+
+                if (target.matches('.editBtn') || target.matches('.editBtn i')) {
+                    const key = target.dataset.id || target.parentElement.dataset.id; // Get the data-id from the node itself or parent node
+                    jobkey = key;
+                    db.ref(`job_items/${key}`).once('value', (snapshot) => {
+                        const job_item = snapshot.val();
+                        document.getElementById('edit-job-model').value = job_item.model;
+                        document.getElementById('edit-job-start-date').value = job_item.start_date;
+                        document.getElementById('edit-job-target-date').value = job_item.target_date;
+                        document.getElementById('edit-job-type').value = job_item.type;
+                        document.getElementById('edit-job-details').value = job_item.detail;
+                        document.getElementById('edit-job-announcer').value = job_item.announcer;
+                        document.getElementById('edit-job-pic').value = job_item.pic;
+                        document.getElementById('edit-job-doc').value = job_item.doc;
+                        document.getElementById('edit-job-finish-date').value = job_item.finish_date;
+                        document.getElementById('edit-job-action').value = job_item.action;
+                        document.getElementById('edit-job-status').value = job_item.status;
+                        document.getElementById('edit-job-link').value = job_item.link;
+
+                        // Reset visibility of all specific fields
+                        document.getElementById('edit-software-test-fields').classList.add('hidden');
+                        document.getElementById('edit-system-test-fields').classList.add('hidden');
+                        document.getElementById('edit-regulatory-test-fields').classList.add('hidden');
+                        document.getElementById('edit-ols-fields').classList.add('hidden');
+
+                        // Display fields based on job type and set values
+                        if (job_item.type === 'software-test') {
+                            document.getElementById('edit-software-test-fields').classList.remove('hidden');
+                            document.getElementById('edit-job-sw-version').value = job_item.version || '';
+                            document.getElementById('edit-job-dqa-result-date').value = job_item.dqa_result_date || '';
+                            document.getElementById('edit-job-dqa-result').value = job_item.dqa_result || '';
+                            document.getElementById('edit-job-sw-final-result-date').value = job_item.final_result_date || '';
+                            document.getElementById('edit-job-sw-final-result').value = job_item.final_result || '';
+                            document.getElementById('edit-job-sprint').value = job_item.sprint || '';
+                        } else if (job_item.type === 'system-test') {
+                            document.getElementById('edit-system-test-fields').classList.remove('hidden');
+                            document.getElementById('edit-job-sys-version').value = job_item.version || '';
+                            document.getElementById('edit-job-sys-final-result-date').value = job_item.final_result_date || '';
+                            document.getElementById('edit-job-sys-final-result').value = job_item.final_result || '';
+                            document.getElementById('edit-job-sys-test-detail').value = job_item.test_detail || '';
+                        } else if (job_item.type === 'regulatory-test') {
+                            document.getElementById('edit-regulatory-test-fields').classList.remove('hidden');
+                            document.getElementById('edit-job-test-phase').value = job_item.test_phase || '';
+                            document.getElementById('edit-job-reg-final-result-date').value = job_item.final_result_date || '';
+                            document.getElementById('edit-job-reg-final-result').value = job_item.final_result || '';
+                            document.getElementById('edit-job-reg-test-detail').value = job_item.test_detail || '';
+                        } else if (job_item.type === 'ols') {
+                            document.getElementById('edit-ols-fields').classList.remove('hidden');
+                            document.getElementById('edit-job-ols').value = job_item.ols_num || '';
+                        }
+                    });
+                }
+            });
+
+            document.getElementById('edit-job-item-form').addEventListener('submit', (event) => {
+                event.preventDefault(); // Prevent default submission
+
+                const updatedJob = {
+                    model: document.getElementById('edit-job-model').value,
+                    start_date: document.getElementById('edit-job-start-date').value,
+                    target_date: document.getElementById('edit-job-target-date').value,
+                    type: document.getElementById('edit-job-type').value,
+                    detail: document.getElementById('edit-job-details').value,
+                    announcer: document.getElementById('edit-job-announcer').value,
+                    pic: document.getElementById('edit-job-pic').value,
+                    doc: document.getElementById('edit-job-doc').value,
+                    finish_date: document.getElementById('edit-job-finish-date').value,
+                    action: document.getElementById('edit-job-action').value,
+                    status: document.getElementById('edit-job-status').value,
+                    link: document.getElementById('edit-job-link').value
+                };
+
+                // Add extra fields based on job type
+                if (updatedJob.type === 'software-test') {
+                    updatedJob.version = document.getElementById('edit-job-sw-version').value;
+                    updatedJob.dqa_result_date = document.getElementById('edit-job-dqa-result-date').value;
+                    updatedJob.dqa_result = document.getElementById('edit-job-dqa-result').value;
+                    updatedJob.final_result_date = document.getElementById('edit-job-sw-final-result-date').value;
+                    updatedJob.final_result = document.getElementById('edit-job-sw-final-result').value;
+                    updatedJob.sprint = document.getElementById('edit-job-sprint').value;
+                } else if (updatedJob.type === 'system-test') {
+                    updatedJob.version = document.getElementById('edit-job-sys-version').value;
+                    updatedJob.final_result_date = document.getElementById('edit-job-sys-final-result-date').value;
+                    updatedJob.final_result = document.getElementById('edit-job-sys-final-result').value;
+                    updatedJob.test_detail = document.getElementById('edit-job-sys-test-detail').value;
+                } else if (updatedJob.type === 'regulatory-test') {
+                    updatedJob.test_phase = document.getElementById('edit-job-test-phase').value;
+                    updatedJob.final_result_date = document.getElementById('edit-job-reg-final-result-date').value;
+                    updatedJob.final_result = document.getElementById('edit-job-reg-final-result').value;
+                    updatedJob.test_detail = document.getElementById('edit-job-reg-test-detail').value;
+                } else if (updatedJob.type === 'ols') {
+                    updatedJob.ols_num = document.getElementById('edit-job-ols').value;
+                }
+
+                db.ref(`job_items/${jobkey}`).update(updatedJob)
+                    .then(() => {
+                        alert('Update successfully! Thành công!');
+                        // Close the modal editing form
+                        $('#modalEditJobItem').modal('hide');
+                    })
+                    .catch(error => {
+                        console.error("Error while updating: ", error);
+                    });
+            });
+
 
             loadData();
         });

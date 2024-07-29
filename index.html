@@ -51,7 +51,7 @@
                   DQA
                 </a>
                 <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                  <a id="bug-control-btn" class="dropdown-item" href="#">Bug control</a>
+                  <a id="job-list-btn" class="dropdown-item" href="#">Job list</a>
                 </div>
               </li>
               <li class="nav-item">
@@ -461,7 +461,6 @@
             </div>
           </form>
         </div>
-        <!-- End Machine list tabs -->
         <!-- Component list tabs -->
         <div id="component-tab" class="tab">
           <form id="component-form" style="display: none;" class="one-line">
@@ -591,7 +590,386 @@
               </div>
             </form>
         </div>
-        <!-- End Component list tabs -->
+        <!-- DQA job list tabs -->
+        <div class="content container-fluid">
+          <div id="job-list-tab" class="tab">
+              <div class="page-header">
+                  <div class="content-page-header d-flex justify-content-between align-items-center">
+                      <h4>DQA Job list</h4>
+                      <div class="list-btn">
+                          <ul class="filter-list">
+                              <li>
+                                  <button type="button" class="btn btn-outline-dark addBtn align-items-center justify-content-center" data-toggle="modal" data-target="#modalAddJobItem">
+                                      <i class="fi fi-rr-add"></i> Add item
+                                  </button>
+                              </li> 
+                          </ul>
+                      </div>
+                  </div>
+              </div>
+              <!-- Modal add job item -->
+              <form id="add-job-item-form">
+                <div class="modal fade bd-example-modal-lg" id="modalAddJobItem" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+                  <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLongTitle">Add job item</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                      </div>
+                      <div class="modal-body">
+                        <div class="form-row">
+                          <!-- <div class="form-group col">
+                            <label for="add-job-trackno">Track no</label>
+                            <input type="text" id="add-job-trackno" class="form-control">
+                          </div> -->
+                          <div class="form-group col">
+                                <label for="add-job-model">Model</label>
+                                <input type="text" id="add-job-model" class="form-control" required>
+                          </div>
+                          <div class="form-group col">
+                            <label for="add-job-start-date">Start date</label>
+                            <input type="date" class="form-control" id="add-job-start-date" required>
+                          </div>
+                          <div class="form-group col">
+                            <label for="add-job-target-date">Target date</label>
+                            <input type="date" class="form-control" id="add-job-target-date" required>
+                          </div>
+                          <div class="form-group col">
+                            <label for="add-job-type">Type</label>
+                            <select id="add-job-type" class="form-control" required>
+                                <option value="software-test">Software testing</option>
+                                <option value="system-test">System testing</option>
+                                <option value="regulatory-test">Regulatory testing</option>
+                                <option value="ols">OLS</option>
+                                <option value="other">Other</option>
+                            </select>
+                          </div>
+                        </div>
+                        <div class="form-row">
+                          <div class="form-group col">
+                                <label for="add-job-detail">Details</label>
+                                <textarea class="form-control" id="add-job-details" rows="2"></textarea>
+                          </div>
+                        </div>
+                        <div class="form-row">
+                          <div class="form-group col">
+                            <label for="add-job-announcer">Announcer</label>
+                            <input type="text" id="add-job-announcer" class="form-control" required>
+                          </div>
+                          <div class="form-group col">
+                            <label for="add-job-pic">PIC</label>
+                            <input type="text" id="add-job-pic" class="form-control" required>
+                          </div>
+                          <div class="form-group col">
+                            <label for="add-job-doc">Doc</label>
+                            <input type="text" id="add-job-doc" class="form-control">
+                          </div>
+                          <div class="form-group col">
+                            <label for="add-job-finish-date">Finish date</label>
+                            <input type="date" class="form-control" id="add-job-finish-date">
+                          </div>
+                        </div>
+                        <div class="form-row">
+                          <div class="form-group col">
+                            <label for="add-job-action">Action</label>
+                            <textarea class="form-control" id="add-job-action" rows="2"></textarea>
+                          </div>
+                        </div>
+                        <div id="software-test-fields" class="form-row">
+                          <div class="form-group col">
+                            <label for="add-job-sw-version">Version</label>
+                            <input type="text" id="add-job-sw-version" class="form-control">
+                          </div>
+                          <div class="form-group col">
+                            <label for="add-job-dqa-result-date">DQA result date</label>
+                            <input type="date" class="form-control" id="add-job-dqa-result-date">
+                          </div>
+                          <div class="form-group col">
+                            <label for="add-job-dqa-result">DQA result</label>
+                            <select id="add-job-dqa-result" class="form-control">
+                                <option value="na">N/A</option>
+                                <option value="pass">PASS</option>
+                                <option value="fail">FAIL</option>
+                            </select>
+                          </div>
+                          <div class="form-group col">
+                            <label for="add-job-sw-final-result-date">Final result date</label>
+                            <input type="date" class="form-control" id="add-job-sw-final-result-date">
+                          </div>
+                          <div class="form-group col">
+                            <label for="add-job-sw-final-result">Final result</label>
+                            <select id="add-job-sw-final-result" class="form-control">
+                                <option value="na">N/A</option>
+                                <option value="pass">PASS</option>
+                                <option value="fail">FAIL</option>
+                            </select>
+                          </div>
+                          <div class="form-group col">
+                            <label for="add-job-sprint">Sprint</label>
+                            <input type="number" id="add-job-sprint" class="form-control" min="1">
+                          </div>
+                        </div>
+                        <div id="system-test-fields" class="form-row hidden">
+                          <div class="form-group col">
+                            <label for="add-job-sys-version">Version</label>
+                            <input type="text" id="add-job-sys-version" class="form-control">
+                          </div>
+                          <div class="form-group col">
+                            <label for="add-job-sys-final-result-date">Final result date</label>
+                            <input type="date" class="form-control" id="add-job-sys-final-result-date">
+                          </div>
+                          <div class="form-group col">
+                            <label for="add-job-sys-final-result">Final result</label>
+                            <select id="add-job-sys-final-result" class="form-control">
+                              <option value="na">N/A</option>
+                              <option value="pass">PASS</option>
+                              <option value="fail">FAIL</option>
+                            </select>
+                          </div>
+                          <div class="form-group col">
+                            <label for="add-job-sys-test-detail">Test detail</label>
+                            <input type="text" id="add-job-sys-test-detail" class="form-control">
+                          </div>
+                        </div>
+                        <div id="regulatory-test-fields" class="form-row hidden">
+                          <div class="form-group col">
+                            <label for="add-job-test-phase">Test phase</label>
+                            <select id="add-job-test-phase" class="form-control">
+                                <option value="a1">A1</option>
+                                <option value="a2">A2</option>
+                                <option value="tr">TR</option>
+                            </select>
+                          </div>
+                          <div class="form-group col">
+                            <label for="add-job-reg-final-result-date">Final result date</label>
+                            <input type="date" class="form-control" id="add-job-reg-final-result-date">
+                          </div>
+                          <div class="form-group col">
+                            <label for="add-job-reg-final-result">Final result</label>
+                            <select id="add-job-reg-final-result" class="form-control">
+                              <option value="na">N/A</option>
+                              <option value="pass">PASS</option>
+                              <option value="fail">FAIL</option>
+                            </select>
+                          </div>
+                          <div class="form-group col">
+                            <label for="add-job-reg-test-detail">Test detail</label>
+                            <input type="text" id="add-job-reg-test-detail" class="form-control">
+                          </div>
+                        </div>
+                        <div id="ols-fields" class="form-row hidden">
+                          <div class="form-group col-md-3">
+                            <label for="add-job-ols">OLS num</label>
+                            <input type="text" id="add-job-ols" class="form-control">
+                          </div>
+                        </div>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Add</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </form>
+              <table class="table table-bordered table-xs">
+                <thead>
+                  <tr>
+                      <th>Track no</th>
+                      <th>Model</th>
+                      <th>Start date</th>
+                      <th>Version</th>
+                      <th>Content</th>
+                      <th>Date>>Action</th>
+                      <th>Status</th>
+                      <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="job-list">
+                    <!-- Job items will be listed here -->
+                </tbody>
+              </table>
+          </div>
+          <!-- Modal edit job item -->
+          <form id="edit-job-item-form">
+            <div class="modal fade bd-example-modal-lg" id="modalEditJobItem" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+              <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLongTitle">Add job item</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                  </div>
+                  <div class="modal-body">
+                    <div class="form-row">
+                      <div class="form-group col">
+                            <label for="edit-job-model">Model</label>
+                            <input type="text" id="edit-job-model" class="form-control" required>
+                      </div>
+                      <div class="form-group col">
+                        <label for="edit-job-start-date">Start date</label>
+                        <input type="date" class="form-control" id="edit-job-start-date" required>
+                      </div>
+                      <div class="form-group col">
+                        <label for="edit-job-target-date">Target date</label>
+                        <input type="date" class="form-control" id="edit-job-target-date" required>
+                      </div>
+                      <div class="form-group col">
+                        <label for="edit-job-type">Type</label>
+                        <select id="edit-job-type" class="form-control" required>
+                            <option value="software-test">Software testing</option>
+                            <option value="system-test">System testing</option>
+                            <option value="regulatory-test">Regulatory testing</option>
+                            <option value="ols">OLS</option>
+                            <option value="other">Other</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="form-row">
+                      <div class="form-group col">
+                            <label for="edit-job-detail">Details</label>
+                            <textarea class="form-control" id="edit-job-details" rows="4"></textarea>
+                      </div>
+                    </div>
+                    <div class="form-row">
+                      <div class="form-group col">
+                        <label for="edit-job-announcer">Announcer</label>
+                        <input type="text" id="edit-job-announcer" class="form-control" required>
+                      </div>
+                      <div class="form-group col">
+                        <label for="edit-job-pic">PIC</label>
+                        <input type="text" id="edit-job-pic" class="form-control" required>
+                      </div>
+                      <div class="form-group col">
+                        <label for="edit-job-doc">Doc</label>
+                        <input type="text" id="edit-job-doc" class="form-control">
+                      </div>
+                      <div class="form-group col">
+                        <label for="edit-job-finish-date">Finish date</label>
+                        <input type="date" class="form-control" id="edit-job-finish-date">
+                      </div>
+                    </div>
+                    <div class="form-row">
+                      <div class="form-group col">
+                        <label for="edit-job-action">Action</label>
+                        <textarea class="form-control" id="edit-job-action" rows="3"></textarea>
+                      </div>
+                    </div>
+                    <div class="form-row">
+                      <div class="form-group col-md-3">
+                        <label for="edit-job-status">Status</label>
+                        <select id="edit-job-status" class="form-control">
+                            <option value="Active">Active</option>
+                            <option value="Closed">Closed</option>
+                            <option value="Pending">Pending</option>
+                        </select>
+                      </div>
+                      <div class="form-group col">
+                        <label for="edit-job-link">Link</label>
+                        <input type="text" id="edit-job-link" class="form-control">
+                      </div>
+                    </div>
+                    <div id="edit-software-test-fields" class="form-row hidden">
+                      <div class="form-group col">
+                        <label for="edit-job-sw-version">Version</label>
+                        <input type="text" id="edit-job-sw-version" class="form-control">
+                      </div>
+                      <div class="form-group col">
+                        <label for="edit-job-dqa-result-date">DQA result date</label>
+                        <input type="date" class="form-control" id="edit-job-dqa-result-date">
+                      </div>
+                      <div class="form-group col">
+                        <label for="edit-job-dqa-result">DQA result</label>
+                        <select id="edit-job-dqa-result" class="form-control">
+                            <option value="na">N/A</option>
+                            <option value="pass">PASS</option>
+                            <option value="fail">FAIL</option>
+                        </select>
+                      </div>
+                      <div class="form-group col">
+                        <label for="edit-job-sw-final-result-date">Final result date</label>
+                        <input type="date" class="form-control" id="edit-job-sw-final-result-date">
+                      </div>
+                      <div class="form-group col">
+                        <label for="edit-job-sw-final-result">Final result</label>
+                        <select id="edit-job-sw-final-result" class="form-control">
+                            <option value="na">N/A</option>
+                            <option value="pass">PASS</option>
+                            <option value="fail">FAIL</option>
+                        </select>
+                      </div>
+                      <div class="form-group col">
+                        <label for="edit-job-sprint">Sprint</label>
+                        <input type="number" id="edit-job-sprint" class="form-control" min="1">
+                      </div>
+                    </div>
+                    <div id="edit-system-test-fields" class="form-row hidden">
+                      <div class="form-group col">
+                        <label for="edit-job-sys-version">Version</label>
+                        <input type="text" id="edit-job-sys-version" class="form-control">
+                      </div>
+                      <div class="form-group col">
+                        <label for="edit-job-sys-final-result-date">Final result date</label>
+                        <input type="date" class="form-control" id="edit-job-sys-final-result-date">
+                      </div>
+                      <div class="form-group col">
+                        <label for="edit-job-sys-final-result">Final result</label>
+                        <select id="edit-job-sys-final-result" class="form-control">
+                          <option value="na">N/A</option>
+                          <option value="pass">PASS</option>
+                          <option value="fail">FAIL</option>
+                        </select>
+                      </div>
+                      <div class="form-group col">
+                        <label for="edit-job-sys-test-detail">Test detail</label>
+                        <input type="text" id="edit-job-sys-test-detail" class="form-control">
+                      </div>
+                    </div>
+                    <div id="edit-regulatory-test-fields" class="form-row hidden">
+                      <div class="form-group col">
+                        <label for="edit-job-test-phase">Test phase</label>
+                        <select id="edit-job-test-phase" class="form-control">
+                            <option value="a1">A1</option>
+                            <option value="a2">A2</option>
+                            <option value="tr">TR</option>
+                        </select>
+                      </div>
+                      <div class="form-group col">
+                        <label for="edit-job-reg-final-result-date">Final result date</label>
+                        <input type="date" class="form-control" id="edit-job-reg-final-result-date">
+                      </div>
+                      <div class="form-group col">
+                        <label for="edit-job-reg-final-result">Final result</label>
+                        <select id="edit-job-reg-final-result" class="form-control">
+                          <option value="na">N/A</option>
+                          <option value="pass">PASS</option>
+                          <option value="fail">FAIL</option>
+                        </select>
+                      </div>
+                      <div class="form-group col">
+                        <label for="edit-job-reg-test-detail">Test detail</label>
+                        <input type="text" id="edit-job-reg-test-detail" class="form-control">
+                      </div>
+                    </div>
+                    <div id="edit-ols-fields" class="form-row hidden">
+                      <div class="form-group col-md-3">
+                        <label for="edit-job-ols">OLS num</label>
+                        <input type="text" id="edit-job-ols" class="form-control">
+                      </div>
+                    </div>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Update</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
         <!-- PA/Admin tabs -->
         <div id="pa-tab" class="tab">
           <form id="leave-form">
@@ -706,20 +1084,6 @@
                 </tbody>
             </table>
           </form>
-          <!-- <form id="password-form" class="one-line">
-              <label for="password">Password:</label>
-              <input type="password" id="password" required>
-              <button class="btn btn-primary" type="submit">Enter</button>
-          </form> -->
-          <!-- <form id="admin-password-form" class="one-line">
-              <label for="admin-password">Password:</label>
-              <input type="password" id="admin-password" class="form-control" required>
-              <button class="btn btn-outline-primary" type="submit">Enter</button>
-          </form> -->
-          <!-- <div id="admin-panel" style="display: none;">
-              <h5>Return Requests</h5>
-              <ul id="return-requests"></ul>
-          </div> -->
         </div>
         <!-- End PA/Admin tabs -->
     </div>
