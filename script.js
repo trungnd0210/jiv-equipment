@@ -1104,7 +1104,7 @@
             function displayJob(key, trackno, model, start_date, version, status, detail, action, doc, link) {
                 const jobItem = document.createElement('tr');
                 jobItem.innerHTML = `
-                    <td><a href="${link}">${trackno}</a></td>
+                    <td><a href="${link}" onclick="copyLink(this.href)">${trackno}</a></td>
                     <td>${model}</td>
                     <td>${start_date}</td>
                     <td>${version}</td>
@@ -1530,5 +1530,5 @@
             document.body.removeChild(tempInput);
             
             // Notify users (optional)
-            alert("Link đã được sao chép!");
+            alert("Saved!");
             }
