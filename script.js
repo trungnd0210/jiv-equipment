@@ -1121,6 +1121,27 @@
                 jobList.appendChild(jobItem);
             }
 
+            //Search job item function 20240801
+            const searchJob = document.getElementById('searchBox_Job');
+            function searchJobs(query) {
+                db.ref('job_items').once('value', (snapshot) => {
+                    jobList.innerHTML = '';
+                    snapshot.forEach((childSnapshot) => {
+                        const key = childSnapshot.key;
+                        const job_item = childSnapshot.val();
+                        if (job_item.model.toLowerCase().includes(query.toLowerCase()) || 
+                            job_item.pic.toLowerCase().includes(query.toLowerCase())) {
+                            displayJob(key, job_item.trackno, job_item.model, job_item.start_date, job_item.version, job_item.status, job_item.detail, job_item.action, job_item.doc, job_item.link);
+                        }
+                    });
+                });
+            }
+    
+            searchJob.addEventListener('input', (event) => {
+                const query = event.target.value;
+                searchJobs(query);
+            });
+
             // Edit job func 20240729
             let jobkey = "";
 
@@ -1239,71 +1260,275 @@
                 fileInput.click();
             });
 
-            //Update DB through Excel
-            document.getElementById('file-upload').addEventListener('change', function(event) {
-                const file = event.target.files[0];
+            //Function filter status
+            document.addEventListener('DOMContentLoaded', function() {
+                // Initially load all jobs
+                filterJobsByStatus('All');
                 
-                if (!file) {
-                    alert('Please choose a file first!');
-                    return;
-                }
-            
-                const confirmUpload = confirm('Do you want to upload this file?');
-            
-                if (!confirmUpload) {
-                    return;
-                }
-            
-                const reader = new FileReader();
-            
-                reader.onload = function(e) {
-                    const data = new Uint8Array(e.target.result);
-                    const workbook = XLSX.read(data, { type: 'array' });
-            
-                    // Assume the first sheet is the one we want to read
-                    const sheetName = workbook.SheetNames[0];
-                    const worksheet = workbook.Sheets[sheetName];
-            
-                    // Convert sheet to JSON
-                    const jsonData = XLSX.utils.sheet_to_json(worksheet);
-            
-                    // Function to update Firebase database
-                    updateFirebaseDatabase(jsonData);
-                };
-            
-                reader.readAsArrayBuffer(file);
+            });
+
+            // Add event listeners to dropdown items
+            document.querySelectorAll('.dropdown-item').forEach(item => {
+                item.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    const status = this.getAttribute('data-status');
+                    filterJobsByStatus(status);
+                });
             });
             
-            function updateFirebaseDatabase(data) {
-                data.forEach(job => {
+            function filterJobsByStatus(status) {
+                const jobList = document.getElementById('job-list');
+                jobList.innerHTML = ''; // Clear the current job list
+            
+                let query = db.ref('job_items');
+                if (status !== 'All') {
+                    query = query.orderByChild('status').equalTo(status);
+                }
+            
+                query.once('value', snapshot => {
+                    snapshot.forEach(childSnapshot => {
+                        const job = childSnapshot.val();
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td><a href="${job.link}" onclick="copyLink(this.href)">${job.trackno}</a></td>
+                            <td>${job.model}</td>
+                            <td>${job.start_date}</td>
+                            <td>${job.version}</td>
+                            <td>${job.detail}</td>
+                            <td>${job.action}</td>
+                            <td class="${job.status === 'Active' ? 'status-active' : job.status === 'Closed' ? 'status-closed' : job.status === 'Pending' ? 'status-pending' : ''}">${job.status}</td>
+                            <td>
+                                <button type="button" class="btn btn-outline-dark editBtn" data-toggle="modal" data-target="#modalEditJobItem" data-id="${childSnapshot.key}">
+                                    <i class="fi fi-rr-edit"></i>
+                                </button>
+                            </td>
+                        `;
+                        jobList.appendChild(row);
+                    });
+                });
+            }
+
+
+            
+            // Listen for click events on dynamically generated edit buttons
+            document.addEventListener('click', function(event) {
+                const target = event.target;
+                if (target.closest('.editBtn')) {
+                    const key = target.closest('.editBtn').getAttribute('data-id');
+                    // Handle edit button click here using the 'key'
+                }
+            });
+
+            //Update DB through Excel
+            // document.getElementById('file-upload').addEventListener('change', function(event) {
+            //     const file = event.target.files[0];
+                
+            //     if (!file) {
+            //         alert('Please choose a file first!');
+            //         return;
+            //     }
+            
+            //     const confirmUpload = confirm('Do you want to upload this file?');
+            
+            //     if (!confirmUpload) {
+            //         return;
+            //     }
+            
+            //     const reader = new FileReader();
+            
+            //     reader.onload = function(e) {
+            //         const data = new Uint8Array(e.target.result);
+            //         const workbook = XLSX.read(data, { type: 'array' });
+            
+            //         // Assume the first sheet is the one we want to read
+            //         const sheetName = workbook.SheetNames[0];
+            //         const worksheet = workbook.Sheets[sheetName];
+            
+            //         // Convert sheet to JSON
+            //         const jsonData = XLSX.utils.sheet_to_json(worksheet);
+            
+            //         // Function to update Firebase database
+            //         updateFirebaseDatabase(jsonData);
+            //     };
+            
+            //     reader.readAsArrayBuffer(file);
+            // });
+            
+            // function updateFirebaseDatabase(data) {
+            //     data.forEach(job => {
+            //         const newJobKey = db.ref().child('job_items').push().key;
+            //         db.ref('job_items/' + newJobKey).set(job, function(error) {
+            //             if (error) {
+            //                 console.error("Error updating database: ", error);
+            //             } else {
+            //                 console.log("Data updated successfully!");
+            //             }
+            //         });
+            //     });
+            // }
+
+            document.getElementById('file-upload').addEventListener('change', handleFileSelect);
+
+            async function handleFileSelect(event) {
+                const file = event.target.files[0];
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, {type: 'array'});
+                    const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+                    const jsonData = XLSX.utils.sheet_to_json(worksheet, {header: 1});
+                    const keys = jsonData[0];
+                    const values = jsonData.slice(1).map(row => {
+                        const obj = {};
+                        keys.forEach((key, i) => {
+                            obj[key] = row[i];
+                        });
+                        return obj;
+                    });
+    
+                    if (confirm('Are you sure you want to upload this data to the database?')) {
+                        updateFirebaseDatabase(values);
+                    }
+                };
+    
+                reader.readAsArrayBuffer(file);
+            }
+    
+            async function getNewTrackno(type) {
+                const date = new Date();
+                const year = date.getFullYear().toString().slice(-2);
+                let tracknoPrefix = '';
+    
+                if (type === 'software-test') {
+                    tracknoPrefix = 'DQA-SW-' + year + '-';
+                } else if (type === 'system-test') {
+                    tracknoPrefix = 'DQA-SYS-' + year + '-';
+                } else if (type === 'regulatory-test') {
+                    tracknoPrefix = 'DQA-REG-' + year + '-';
+                } else if (type === 'ols') {
+                    return null; // Return null if type is 'ols' since we will handle this separately
+                } else {
+                    tracknoPrefix = 'DQA-O-' + year + '-';
+                }
+    
+                const snapshot = await db.ref('trackno/' + type).orderByKey().limitToLast(1).once('value');
+                let latestTrackNo = null;
+                snapshot.forEach(childSnapshot => {
+                    latestTrackNo = childSnapshot.key;
+                });
+    
+                let newSuffix = '0001';
+                if (latestTrackNo) {
+                    const currentSuffix = parseInt(latestTrackNo.split('-').pop());
+                    newSuffix = (currentSuffix + 1).toString().padStart(4, '0');
+                }
+    
+                return tracknoPrefix + newSuffix;
+            }
+    
+            async function updateFirebaseDatabase(data) {
+                for (const job of data) {
+                    if (job.type === 'ols' && job.ols_num) {
+                        job.trackno = job.ols_num;
+                    } else {
+                        const trackno = await getNewTrackno(job.type);
+                        job.trackno = trackno;
+                    }
+    
+                    // Remove undefined properties
+                    const cleanedJob = {};
+                    Object.keys(job).forEach(key => {
+                        if (job[key] !== undefined) {
+                            cleanedJob[key] = job[key];
+                        }
+                    });
+    
                     const newJobKey = db.ref().child('job_items').push().key;
-                    db.ref('job_items/' + newJobKey).set(job, function(error) {
+                    db.ref('job_items/' + newJobKey).set(cleanedJob, function(error) {
                         if (error) {
                             console.error("Error updating database: ", error);
                         } else {
                             console.log("Data updated successfully!");
                         }
                     });
-                });
+    
+                    if (job.type !== 'ols') {
+                        // Update trackno database
+                        db.ref('trackno/' + job.type + '/' + job.trackno).set(true);
+                    }
+                }
             }
+
+            // Function to fetch data from Firebase and export to Excel
+            async function exportToExcel() {
+                try {
+                    const snapshot = await db.ref('job_items').once('value');
+                    const data = snapshot.val();
+
+                    if (!data) {
+                        alert('No data found');
+                        return;
+                    }
+
+                    // Convert the data into an array of objects
+                    const exportData = Object.keys(data).map(key => {
+                        return { id: key, ...data[key] };
+                    });
+
+                    // Create a new workbook and add the data
+                    const wb = XLSX.utils.book_new();
+                    const ws = XLSX.utils.json_to_sheet(exportData);
+                    XLSX.utils.book_append_sheet(wb, ws, "Job Items");
+
+                    // Export the workbook
+                    XLSX.writeFile(wb, 'job_items.xlsx');
+                } catch (error) {
+                    console.error("Error exporting data: ", error);
+                    alert('Failed to export data');
+                }
+            }
+
+            document.getElementById('export-btn').addEventListener('click', exportToExcel);
 
             loadData();
         });
 
-    // Handle return requests 20240626
-    function handleDelete(event) {
-        const equipmentId = event.target.dataset.id; // Giả sử id được lưu trong thuộc tính data-id của button
-    
-        // Hiển thị pop-up xác nhận
-        if (confirm('Are you sure you want to delete this equipment?')) {
-            const db = firebase.database();
-            const equipmentRef = db.ref('equipment/' + equipmentId);
-    
-            equipmentRef.remove().then(() => {
-                alert('Equipment deleted successfully!');
-                location.reload();
-            }).catch(error => {
-                console.error('Error deleting equipment: ', error);
-            });
+        // Handle return requests 20240626
+        function handleDelete(event) {
+            const equipmentId = event.target.dataset.id; // Suppose the id is stored in the data-id attribute of the button
+        
+            // Show confirmation pop-up
+            if (confirm('Are you sure you want to delete this equipment?')) {
+                const db = firebase.database();
+                const equipmentRef = db.ref('equipment/' + equipmentId);
+        
+                equipmentRef.remove().then(() => {
+                    alert('Equipment deleted successfully!');
+                    location.reload();
+                }).catch(error => {
+                    console.error('Error deleting equipment: ', error);
+                });
+            }
         }
-    }
+
+        //Copy link to clipboard
+        function copyLink(link) {
+            // Create a temporary input tag to store the link
+            const tempInput = document.createElement('input');
+            document.body.appendChild(tempInput);
+            tempInput.value = link;
+            
+            // Focus on input and select all content
+            tempInput.select();
+            tempInput.setSelectionRange(0, 99999); // For mobile devices
+            
+            // Copy content to clipboard
+            document.execCommand("copy");
+            
+            // Delete temporary input tag
+            document.body.removeChild(tempInput);
+            
+            // Notify users (optional)
+            alert("Link đã được sao chép!");
+            }

@@ -600,6 +600,19 @@
                       <div class="list-btn">
                           <ul class="filter-list">
                               <li>
+                                  <input type="text" id="searchBox_Job" class="col-md-4" placeholder="Search item...">
+                                  <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownFilterStatusBtn" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                      <i class="fi fi-rr-bars-filter"></i>
+                                  </button>
+                                  <div class="dropdown-menu" aria-labelledby="dropdownFilterStatusBtn">
+                                      <a class="dropdown-item jobStatus" href="#" data-status="All">All</a>
+                                      <a class="dropdown-item jobStatus" href="#" data-status="Active">Active</a>
+                                      <a class="dropdown-item jobStatus" href="#" data-status="Closed">Closed</a>
+                                      <a class="dropdown-item jobStatus" href="#" data-status="Pending">Pending</a>
+                                  </div>
+                                  <button type="button" id="export-btn" class="btn btn-outline-dark addBtn align-items-center justify-content-center">
+                                    Export
+                                  </button>
                                   <button type="button" class="btn btn-outline-dark addBtn align-items-center justify-content-center uploadBtn">
                                     <i class="fi fi-rr-upload"></i>
                                   </button>
