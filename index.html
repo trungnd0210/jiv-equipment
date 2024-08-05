@@ -77,6 +77,29 @@
             <button id="equipment-tab-btn" class="btn btn-outline-primary">Equipment</button>
         </div> -->
         <div id="dashboard-tab" class="tab">
+          <!-- <h4 style="margin-top: 10px;">DQA MAIN TASK DEVIATION</h4>
+          <table id="task_deviation_table" class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Item</th>
+                    <th>Jan</th>
+                    <th>Feb</th>
+                    <th>Mar</th>
+                    <th>Apr</th>
+                    <th>May</th>
+                    <th>Jun</th>
+                    <th>Jul</th>
+                    <th>Aug</th>
+                    <th>Sep</th>
+                    <th>Oct</th>
+                    <th>Nov</th>
+                    <th>Dec</th>
+                </tr>
+            </thead>
+            <tbody> -->
+                <!-- Leave data will be inserted here -->
+            <!-- </tbody>
+          </table> -->
           <form id="date-form">
             <div class="form-row">
               <div class="form-group col">
@@ -102,6 +125,8 @@
                     <th>Name</th>
                     <th>Period</th>
                     <th>Leave Time</th>
+                    <th>Start time</th>
+                    <th>End time</th>
                 </tr>
             </thead>
             <tbody>
@@ -990,54 +1015,58 @@
             </div>
           </form>
         </div>
+
         <!-- PA/Admin tabs -->
         <div id="pa-tab" class="tab">
           <form id="leave-form">
-            <h5>Attendance for leave (Nghỉ phép - 离开)</h5>
-            <div class="form-row">
-              <div class="form-group col">
-                <label for="leave-id">ID (Mã nhân viên-员工代码):</label>
-                <input type="number" id="leave-id" class="form-control" required>
+              <h5>Attendance for leave (Nghỉ phép - 离开)</h5>
+              <div class="form-row">
+                  <div class="form-group col">
+                      <label for="leave-id">ID (Mã nhân viên-员工代码):</label>
+                      <input type="number" id="leave-id" class="form-control" required>
+                  </div>
+                  <div class="form-group col">
+                      <label for="leave-date">Start Date (Ngày bắt đầu-开始日期):</label>
+                      <input type="date" id="leave-date" class="form-control" required>
+                  </div>
+                  <div class="form-group col">
+                      <label for="leave-period">Period (Khoảng thời gian-时期):</label>
+                      <select id="leave-period" class="form-control" required>
+                          <option value="all">All day (cả ngày-一整天)</option>
+                          <option value="morning">Morning (buổi sáng-早晨)</option>
+                          <option value="afternoon">Afternoon (buổi chiều-下午)</option>
+                          <option value="several_day">Several days (nhiều ngày-几天)</option>
+                          <option value="personal">Personal (việc riêng-个人的)</option>
+                      </select>
+                  </div>
               </div>
-              <div class="form-group col">
-                <label for="leave-date">Date (Ngày-天):</label>
-                <input type="date" id="leave-date" class="form-control" required>
-              </div>
-              <div class="form-group col">
-                <label for="leave-period">Period (Khoảng thời gian-时期):</label>
-                <select id="leave-period" class="form-control" required>
-                    <option value="all">All day (cả ngày-一整天)</option>
-                    <option value="morning">Morning (buổi sáng-早晨)</option>
-                    <option value="afternoon">Afternoon (buổi chiều-下午)</option>
-                </select>
-              </div>
-            </div>
-            <button class="btn btn-outline-primary btn-submit" type="submit">Submit Leave (Đăng ký-提交休假)</button>
+              <div id="additional-fields"></div> <!-- Container for additional input fields -->
+              <button class="btn btn-outline-primary btn-submit" type="submit">Submit Leave (Đăng ký-提交休假)</button>
           </form>
           <form id="overtime-form">
-            <h5>Overtime (Tăng ca - 随着时间的推移)</h5>
-            <div class="form-row">
-              <div class="form-group col">
-                <label for="overtime-id">ID (Mã nhân viên-员工代码):</label>
-                <input type="number" id="overtime-id" class="form-control" required>
+              <h5>Overtime (Tăng ca - 随着时间的推移)</h5>
+              <div class="form-row">
+                  <div class="form-group col">
+                      <label for="overtime-id">ID (Mã nhân viên-员工代码):</label>
+                      <input type="number" id="overtime-id" class="form-control" required>
+                  </div>
+                  <div class="form-group col">
+                      <label for="overtime-date">Date (Ngày-天):</label>
+                      <input type="date" id="overtime-date" class="form-control" required>
+                  </div>
+                  <div class="form-group col">
+                      <label for="overtime-hour">Overtime hour (Số giờ-加班时间):</label>
+                      <input type="number" class="form-control" id="ot-hour" required>
+                  </div>
               </div>
-              <div class="form-group col">
-                <label for="overtime-date">Date (Ngày-天):</label>
-                <input type="date" id="overtime-date" class="form-control" required>
+              <div class="form-check">
+                  <input type="checkbox" class="form-check-input" id="meal-check" style="top: 4px;">
+                  <label class="form-check-label" for="meal-check">Register for meals (OT > 1 hour) - 登记用餐（加班时间 > 1 小时）</label>
               </div>
-              <div class="form-group col">
-                <label for="overtime-hour">Overtime hour (Số giờ-加班时间):</label>
-                <input type="number" class="form-control" id="ot-hour" required>
-              </div>
-            </div>
-            <div class="form-check">
-              <input type="checkbox" class="form-check-input" id="meal-check" style="top: 4px;">
-              <label class="form-check-label" for="meal-check">Register for meals (OT > 1 hour) - 登记用餐（加班时间 > 1 小时）</label>
-            </div>
-            <button class="btn btn-outline-primary btn-submit" type="submit">Submit Overtime (Đăng ký-提交加班)</button>
+              <button class="btn btn-outline-primary btn-submit" type="submit">Submit Overtime (Đăng ký-提交加班)</button>
           </form>
         </div>
-
+        
         <div id="admin-tab" class="tab">
           <form id="member-form" style="display: none;">
             <!-- <form id="pw-enable" id="member-form" style="display: none;"> -->

@@ -293,9 +293,12 @@
                 `;
                 machineList_disable.appendChild(machineItem);
             }
-            //Edit machine func 20240723
+
+            // Edit machine func 20240723
             let mckey = "";
-            document.addEventListener('click', function (event) {
+            let oldMachineName = ""; // Variable to store old machine name
+
+            document.addEventListener('click', function(event) {
                 const target = event.target;
                 if (target.matches('.editBtn') || target.matches('.editBtn i')) {
                     const key = target.dataset.id || target.parentElement.dataset.id; // Get the data-id from the node itself or parent node
@@ -311,15 +314,18 @@
                         document.getElementById('edit-mc-description').value = machine.description;
                         document.getElementById('edit-mc-type').value = machine.mcType;
                         document.getElementById('edit-mc-store').value = machine.mcStore;
+                        oldMachineName = machine.name; // Store the old machine name
                     });
                 }
             });
-            
+
             document.getElementById('edit-mc-form').addEventListener('submit', (event) => {
                 event.preventDefault(); // Prevent default submission
-            
+
+                const newMachineName = document.getElementById('edit-machine-name').value;
+
                 const updatedMachine = {
-                    name: document.getElementById('edit-machine-name').value,
+                    name: newMachineName,
                     quantity: document.getElementById('edit-machine-quantity').value,
                     machineSerial: document.getElementById('edit-mc-serial').value,
                     verificationDate: document.getElementById('edit-mc-date').value,
@@ -329,12 +335,29 @@
                     mcType: document.getElementById('edit-mc-type').value,
                     mcStore: document.getElementById('edit-mc-store').value
                 };
-            
+
                 db.ref(`machines/${mckey}`).update(updatedMachine)
                     .then(() => {
                         alert('Update successfully! Thành công!');
                         // Close the model editing form
                         $('#modalEditMc').modal('hide');
+
+                        // Check if machine name has changed
+                        if (newMachineName !== oldMachineName) {
+                            // Update components where mcUsing is oldMachineName
+                            db.ref('components').orderByChild('mcUsing').equalTo(oldMachineName).once('value', (snapshot) => {
+                                snapshot.forEach(childSnapshot => {
+                                    const componentKey = childSnapshot.key;
+                                    db.ref(`components/${componentKey}`).update({ mcUsing: newMachineName })
+                                        .then(() => {
+                                            console.log(`Component ${componentKey} updated with new machine name`);
+                                        })
+                                        .catch(error => {
+                                            console.error("Error updating component: ", error);
+                                        });
+                                });
+                            });
+                        }
                     })
                     .catch(error => {
                         console.error("Error while updating: ", error);
@@ -776,43 +799,103 @@
             }
 
             // Form submit leave #update 20240715 add more check name based on memberId
+            const leavePeriod = document.getElementById('leave-period');
+            const additionalFields = document.getElementById('additional-fields');
+
+            leavePeriod.addEventListener('change', () => {
+                const selectedPeriod = leavePeriod.value;
+                additionalFields.innerHTML = '';
+
+                if (selectedPeriod === 'several_day') {
+                    additionalFields.innerHTML = `
+                        <div class="form-group col-md-4">
+                            <label for="leave-end-date">End Date (Ngày kết thúc-结束日期):</label>
+                            <input type="date" id="leave-end-date" class="form-control" required>
+                        </div>
+                    `;
+                } else if (selectedPeriod === 'personal') {
+                    additionalFields.innerHTML = `
+                    <div class="form-row">
+                        <div class="form-group col-md-4">
+                            <label for="leave-start-time">Start Time (Thời gian bắt đầu-开始时间):</label>
+                            <input type="time" id="leave-start-time" class="form-control" required>
+                        </div>
+                        <div class="form-group col-md-4">
+                        <label for="leave-end-time">End Time (Thời gian kết thúc-结束时间):</label>
+                        <input type="time" id="leave-end-time" class="form-control" required>
+                    </div>
+                    </div>    
+                    `;
+                }
+            });
+
             leaveForm.addEventListener('submit', (event) => {
                 event.preventDefault();
                 const leaveId = document.getElementById('leave-id').value;
                 const leavePeriod = document.getElementById('leave-period').value;
                 const leaveTime = document.getElementById('leave-date').value;
-
+        
                 if (leaveId && leavePeriod && leaveTime) {
-                const leaveData = {
-                    memberId: leaveId,
-                    period: leavePeriod,
-                    leaveTime: leaveTime
-                };
-                submitLeave(leaveData);
+                    let leaveData = {
+                        memberId: leaveId,
+                        period: leavePeriod,
+                        leaveTime: leaveTime
+                    };
+        
+                    if (leavePeriod === 'several_day') {
+                        const endDate = document.getElementById('leave-end-date').value;
+                        const start = new Date(leaveTime);
+                        const end = new Date(endDate);
+                        let current = start;
+        
+                        let leaveEntries = [];
+                        while (current <= end) {
+                            const dateString = current.toISOString().split('T')[0];
+                            leaveEntries.push({ ...leaveData, leaveTime: dateString, period: 'all' });
+                            current.setDate(current.getDate() + 1);
+                        }
+        
+                        submitLeave(leaveEntries, true);
+                    } else if (leavePeriod === 'personal') {
+                        const startTime = document.getElementById('leave-start-time').value;
+                        const endTime = document.getElementById('leave-end-time').value;
+                        leaveData.startTime = startTime;
+                        leaveData.endTime = endTime;
+        
+                        submitLeave([leaveData]);
+                    } else {
+                        submitLeave([leaveData]);
+                    }
                 } else {
-                alert('Please fill in all fields');
+                    alert('Please fill in all fields');
                 }
             });
-
-            function submitLeave(leaveData) {
-                const memberId = leaveData.memberId;
-            
+        
+            function submitLeave(leaveDataArray, isMultiple = false) {
+                const memberId = leaveDataArray[0].memberId;
+        
                 db.ref('member').orderByChild('id').equalTo(memberId).once('value', (snapshot) => {
-                  if (snapshot.exists()) {
-                    snapshot.forEach((childSnapshot) => {
-                      const memberData = childSnapshot.val();
-                      leaveData.name = memberData.name;
-            
-                      db.ref('leaves').push(leaveData).then(() => {
-                        alert('Leave submitted successfully');
-                      }).catch((error) => {
-                        console.error('Error submitting leave: ', error);
-                      });
-                    });
-                  } else {
-                    console.error('Member ID not found');
-                    alert('Member ID not found');
-                  }
+                    if (snapshot.exists()) {
+                        let leaveCount = leaveDataArray.length;
+                        snapshot.forEach((childSnapshot) => {
+                            const memberData = childSnapshot.val();
+                            leaveDataArray.forEach(leaveData => {
+                                leaveData.name = memberData.name;
+        
+                                db.ref('leaves').push(leaveData).then(() => {
+                                    leaveCount--;
+                                    if (leaveCount === 0) {
+                                        alert('Leave submitted successfully');
+                                    }
+                                }).catch((error) => {
+                                    console.error('Error submitting leave: ', error);
+                                });
+                            });
+                        });
+                    } else {
+                        alert('Member ID not found');
+                        console.error('Member ID not found');
+                    }
                 });
             }
 
@@ -911,6 +994,8 @@
                                 <td>${leave.name}</td>
                                 <td>${leave.period}</td>
                                 <td>${leave.leaveTime}</td>
+                                <td>${leave.startTime}</td>
+                                <td>${leave.endTime}</td>
                             `;
                             leaveTableBody.appendChild(row);
                         });
@@ -1030,7 +1115,7 @@
                 const version = document.getElementById('add-job-sw-version').value;
                 const status = 'Active';
 
-                link = '\\\\10.100.28.65\\ee\\12 DQA\\101.Data\\' + trackno;
+                link = '\\\\10.100.28.65\\ee\\DQA\\101.Data\\' + trackno;
 
                 let extraFields = {};
                 if (type === 'software-test') {
@@ -1042,7 +1127,7 @@
                         final_result: document.getElementById('add-job-sw-final-result').value,
                         sprint: document.getElementById('add-job-sprint').value
                     };
-                    link = '\\\\10.100.28.65\\ee\\12 DQA\\02.Software\\05.Testing software\\' + model + '\\' + version;
+                    link = '\\\\10.100.28.65\\ee\\DQA\\02.Software\\05.Testing software\\' + model + '\\' + version;
                 } else if (type === 'system-test') {
                     extraFields = {
                         version: document.getElementById('add-job-sys-version').value,
@@ -1062,7 +1147,7 @@
                         ols_num: document.getElementById('add-job-ols').value,
                     };
                     trackno = document.getElementById('add-job-ols').value;
-                    link = '\\\\10.100.28.65\\ee\\12 DQA\\101.Data\\' + trackno;
+                    link = '\\\\10.100.28.65\\ee\\DQA\\101.Data\\' + trackno;
                 }
 
                 db.ref('job_items').push({
