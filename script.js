@@ -501,7 +501,7 @@
                     date: document.getElementById('edit-com-date').value,
                 };
             
-                db.ref(`components/${mckey}`).update(updatedCom)
+                db.ref(`components/${comkey}`).update(updatedCom)
                     .then(() => {
                         alert('Update successfully! Thành công!');
                         // Close the model editing form
@@ -691,7 +691,7 @@
             document.getElementById('edit-equip-form').addEventListener('submit', (event) => {
                 event.preventDefault(); // Prevent default submission
             
-                const updatedCom = {
+                const updatedEquip = {
                     name: document.getElementById('edit-equipment-name').value,
                     quantity: document.getElementById('edit-equipment-quantity').value,
                     department: document.getElementById('edit-equip-department').value,
@@ -701,7 +701,7 @@
                     pic: document.getElementById('edit-pic').value,
                 };
             
-                db.ref(`equipment/${mckey}`).update(updatedCom)
+                db.ref(`equipment/${equipkey}`).update(updatedEquip)
                     .then(() => {
                         alert('Update successfully! Thành công!');
                         // Close the model editing form
@@ -967,6 +967,52 @@
                 memberForm.reset();
             });
 
+            //Edit member func 20240807
+            let memkey = "";
+            document.addEventListener('click', function (event) {
+                const target = event.target;
+                if (target.matches('.editBtn') || target.matches('.editBtn i')) {
+                    const key = target.dataset.id || target.parentElement.dataset.id; // Get the data-id from the node itself or parent node
+                    memkey = key;
+                    db.ref(`member/${key}`).once('value', (snapshot) => {
+                        const mem = snapshot.val();
+                        document.getElementById('edit-employee-name').value = mem.name;
+                        document.getElementById('edit-eng-name').value = mem.eng_name;
+                        document.getElementById('edit-employee-id').value = mem.id;
+                        document.getElementById('edit-hire-date').value = mem.hire_date;
+                        document.getElementById('edit-employee-department').value = mem.emp_department;
+                        document.getElementById('edit-mail').value = mem.mail;
+                        document.getElementById('edit-employee-phone').value = mem.phone;
+                        document.getElementById('edit-grade').value = mem.grade;
+                    });
+                }
+            });
+            
+            document.getElementById('edit-mem-form').addEventListener('submit', (event) => {
+                event.preventDefault(); // Prevent default submission
+            
+                const updatedMem = {
+                    name: document.getElementById('edit-employee-name').value,
+                    eng_name: document.getElementById('edit-eng-name').value,
+                    id: document.getElementById('edit-employee-id').value,
+                    hire_date: document.getElementById('edit-hire-date').value,
+                    emp_department: document.getElementById('edit-employee-department').value,
+                    mail: document.getElementById('edit-mail').value,
+                    phone: document.getElementById('edit-employee-phone').value,
+                    grade: document.getElementById('edit-grade').value,
+                };
+            
+                db.ref(`member/${memkey}`).update(updatedMem)
+                    .then(() => {
+                        alert('Update successfully! Thành công!');
+                        // Close the model editing form
+                        $('#modalEditMem').modal('hide');
+                    })
+                    .catch(error => {
+                        console.error("Error while updating: ", error);
+                    });
+            });
+
             //Dashboard
             dateForm.addEventListener('submit', (event) => {
                 event.preventDefault();
@@ -1033,8 +1079,11 @@
                     <td>${mail}</td>
                     <td>${grade}</td>
                     <td>${phone}</td>
-                    <td><button type="button" class="btn btn-outline-dark editBtn" data-id=${key}>Edit</button>
-                    <button type="button" class="btn btn-outline-danger deleteBtn" data-id=${key} style="margin-top: 4px;">Delete</button></td>
+                    <td>
+                        <button type="button" class="btn btn-outline-dark editBtn" data-toggle="modal" data-target="#modalEditMem" data-id=${key}>
+                            <i class="fi fi-rr-edit"></i>
+                        </button>
+                    </td>
                 `;
                 memberList.appendChild(memberItem);
             }

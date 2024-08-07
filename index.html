@@ -1133,6 +1133,70 @@
                 </tbody>
             </table>
           </form>
+          <!-- Modal edit mem-->
+          <form id="edit-mem-form">
+            <div class="modal fade bd-example-modal-lg" id="modalEditMem" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+              <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLongTitle">Edit member information</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                  </div>
+                  <div class="modal-body">
+                    <div class="form-row">
+                      <div class="form-group col">
+                        <label for="edit-employee-name">Name*:</label>
+                        <input type="text" id="edit-employee-name" class="form-control" required>
+                      </div>
+                      <div class="form-group col">
+                        <label for="edit-eng-name">English Name:</label>
+                        <input type="text" id="edit-eng-name" class="form-control">
+                      </div>
+                      <div class="form-group col">
+                        <label for="edit-employee-id">ID*:</label>
+                        <input type="number" class="form-control" id="edit-employee-id" required>
+                      </div>
+                    </div>
+                    <div class="form-row">
+                      <div class="form-group col">
+                        <label for="edit-hire-date">Hire date*:</label>
+                        <input type="date" id="edit-hire-date" class="form-control" required>
+                      </div>
+                      <div class="form-group col">
+                        <label for="edit-employee-department">Department*:</label>
+                        <select id="edit-employee-department" class="form-control" required>
+                            <option value="dqa">DQA</option>
+                            <option value="ee">EE</option>
+                            <option value="me">ME</option>
+                            <option value="dcc">DCC</option>
+                        </select>
+                      </div>
+                      <div class="form-group col">
+                        <label for="edit-grade">Grade*:</label>
+                        <input type="number" class="form-control" id="edit-grade" required>
+                      </div>
+                    </div>
+                    <div class="form-row">
+                      <div class="form-group col">
+                        <label for="edit-mail">Mail*:</label>
+                        <input type="email" id="edit-mail" class="form-control" required>
+                      </div>
+                      <div class="form-group col">
+                        <label for="edit-employee-phone">Phone*:</label>
+                        <input type="number" class="form-control" id="edit-employee-phone" required>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save changes</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </form>
         </div>
         <!-- End PA/Admin tabs -->
     </div>
