@@ -905,6 +905,7 @@
                 const id = document.getElementById('overtime-id').value;
                 const date = document.getElementById('overtime-date').value || new Date().toISOString().split('T')[0];
                 const ot_hour = document.getElementById('ot-hour').value;
+                const ot_reason = document.getElementById('overtime-reason').value;
                 const meal_check = document.getElementById('meal-check').checked;
 
                 if (id && date && ot_hour) {
@@ -912,6 +913,7 @@
                     memberId: id,
                     date: date,
                     ot_hour: ot_hour,
+                    ot_reason: ot_reason,
                     meal_check: meal_check
                 };
                 submitOvertime(overtimeData);
@@ -1060,6 +1062,7 @@
                                 <td>${ot.name}</td>
                                 <td>${ot.date}</td>
                                 <td>${ot.ot_hour}</td>
+                                <td>${ot.ot_reason}</td>
                                 <td>${ot.meal_check}</td>
                             `;
                             otTableBody.appendChild(row);
